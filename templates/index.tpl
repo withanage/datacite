@@ -54,7 +54,7 @@
 			</div>
 		{/if}
 
-		{capture assign=dataciteSettingsGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="plugins.generic.staticPages.controllers.gridsettingsPluginGridHandler" op="manage" plugin="DataciteExportPlugin" category="importexport" verb="index" escape=false}{/capture}
+		{capture assign=dataciteSettingsGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.settings.plugins.settingsPluginGridHandler" op="manage" plugin="DataciteExportPlugin" category="importexport" verb="index" escape=false}{/capture}
 		{load_url_in_div id="dataciteSettingsGridContainer" url=$dataciteSettingsGridUrl}
 	</div>
 
@@ -70,7 +70,7 @@
 				<form id="exportSubmissionXmlForm" class="pkp_form" action="{plugin_url path="exportSubmissions"}" method="post">
 					<input type="hidden" name="tab" value="exportSubmissions-tab" />
 					{fbvFormArea id="submissionsXmlForm"}
-						{capture assign=submissionsListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="plugins.importexport.datacite.controllers.grid.PubIdExportSubmissionsListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
+						{capture assign=submissionsListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.pubIds.PubIdExportSubmissionsListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
 						{load_url_in_div id="submissionsListGridContainer" url=$submissionsListGridUrl}
 						{fbvFormSection list="true"}
 							{fbvElement type="checkbox" id="validation" label="plugins.importexport.datacite.validation" checked=$validation|default:true}
