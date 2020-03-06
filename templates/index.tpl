@@ -25,16 +25,16 @@
 </script>
 <div id="importExportTabs">
 	<ul>
-		<li><a href="#settings-tab">{translate key="plugins.importexport.common.settings"}</a></li>
+		<li><a href="#settings-tab">{translate key="plugins.importexport.datacite.settings"}</a></li>
 		{if $allowExport}
 			{if $exportArticles}
-				<li><a href="#exportSubmissions-tab">{translate key="plugins.importexport.common.export.articles"}</a></li>
+				<li><a href="#exportSubmissions-tab">{translate key="plugins.importexport.datacite.export.articles"}</a></li>
 			{/if}
 			{if $exportIssues}
-				<li><a href="#exportIssues-tab">{translate key="plugins.importexport.common.export.issues"}</a></li>
+				<li><a href="#exportIssues-tab">{translate key="plugins.importexport.datacite.export.issues"}</a></li>
 			{/if}
 			{if $exportRepresentations}
-				<li><a href="#exportRepresentations-tab">{translate key="plugins.importexport.common.export.representations"}</a></li>
+				<li><a href="#exportRepresentations-tab">{translate key="plugins.importexport.datacite.export.representations"}</a></li>
 			{/if}
 		{/if}
 	</ul>
@@ -43,18 +43,18 @@
 			<div class="pkp_notification" id="dataciteConfigurationErrors">
 				{foreach from=$configurationErrors item=configurationError}
 					{if $configurationError == $smarty.const.DOI_EXPORT_CONFIG_ERROR_DOIPREFIX}
-						{include file="controllers/notification/inPlaceNotificationContent.tpl" notificationId=dataciteConfigurationErrors notificationStyleClass="notifyWarning" notificationTitle="plugins.importexport.common.missingRequirements"|translate notificationContents="plugins.importexport.common.error.DOIsNotAvailable"|translate}
+						{include file="controllers/notification/inPlaceNotificationContent.tpl" notificationId=dataciteConfigurationErrors notificationStyleClass="notifyWarning" notificationTitle="plugins.importexport.datacite.missingRequirements"|translate notificationContents="plugins.importexport.datacite.error.DOIsNotAvailable"|translate}
 					{elseif $configurationError == $smarty.const.EXPORT_CONFIG_ERROR_SETTINGS}
-						{include file="controllers/notification/inPlaceNotificationContent.tpl" notificationId=dataciteConfigurationErrors notificationStyleClass="notifyWarning" notificationTitle="plugins.importexport.common.missingRequirements"|translate notificationContents="plugins.importexport.common.error.pluginNotConfigured"|translate}
+						{include file="controllers/notification/inPlaceNotificationContent.tpl" notificationId=dataciteConfigurationErrors notificationStyleClass="notifyWarning" notificationTitle="plugins.importexport.datacite.missingRequirements"|translate notificationContents="plugins.importexport.datacite.error.pluginNotConfigured"|translate}
 					{/if}
 				{/foreach}
 				{if !$exportArticles && !$exportIssues && !$exportRepresentations}
-					{include file="controllers/notification/inPlaceNotificationContent.tpl" notificationId=dataciteConfigurationErrors notificationStyleClass="notifyWarning" notificationTitle="plugins.importexport.common.missingRequirements"|translate notificationContents="plugins.importexport.common.error.noDOIContentObjects"|translate}
+					{include file="controllers/notification/inPlaceNotificationContent.tpl" notificationId=dataciteConfigurationErrors notificationStyleClass="notifyWarning" notificationTitle="plugins.importexport.datacite.missingRequirements"|translate notificationContents="plugins.importexport.datacite.error.noDOIContentObjects"|translate}
 				{/if}
 			</div>
 		{/if}
 
-		{capture assign=dataciteSettingsGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.settings.plugins.settingsPluginGridHandler" op="manage" plugin="DataciteExportPlugin" category="importexport" verb="index" escape=false}{/capture}
+		{capture assign=dataciteSettingsGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="plugins.generic.staticPages.controllers.gridsettingsPluginGridHandler" op="manage" plugin="DataciteExportPlugin" category="importexport" verb="index" escape=false}{/capture}
 		{load_url_in_div id="dataciteSettingsGridContainer" url=$dataciteSettingsGridUrl}
 	</div>
 
@@ -70,10 +70,10 @@
 				<form id="exportSubmissionXmlForm" class="pkp_form" action="{plugin_url path="exportSubmissions"}" method="post">
 					<input type="hidden" name="tab" value="exportSubmissions-tab" />
 					{fbvFormArea id="submissionsXmlForm"}
-						{capture assign=submissionsListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.pubIds.PubIdExportSubmissionsListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
+						{capture assign=submissionsListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="plugins.importexport.datacite.controllers.grid.PubIdExportSubmissionsListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
 						{load_url_in_div id="submissionsListGridContainer" url=$submissionsListGridUrl}
 						{fbvFormSection list="true"}
-							{fbvElement type="checkbox" id="validation" label="plugins.importexport.common.validation" checked=$validation|default:true}
+							{fbvElement type="checkbox" id="validation" label="plugins.importexport.datacite.validation" checked=$validation|default:true}
 						{/fbvFormSection}
 						{if !empty($actionNames)}
 							{fbvFormSection}
@@ -104,7 +104,7 @@
 						{capture assign=issuesListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.pubIds.PubIdExportIssuesListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
 						{load_url_in_div id="issuesListGridContainer" url=$issuesListGridUrl}
 						{fbvFormSection list="true"}
-							{fbvElement type="checkbox" id="validation" label="plugins.importexport.common.validation" checked=$validation|default:true}
+							{fbvElement type="checkbox" id="validation" label="plugins.importexport.datacite.validation" checked=$validation|default:true}
 						{/fbvFormSection}
 						{if !empty($actionNames)}
 							{fbvFormSection}
@@ -135,7 +135,7 @@
 						{capture assign=representationsListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.pubIds.PubIdExportRepresentationsListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
 						{load_url_in_div id="representationsListGridContainer" url=$representationsListGridUrl}
 						{fbvFormSection list="true"}
-							{fbvElement type="checkbox" id="validation" label="plugins.importexport.common.validation" checked=$validation|default:true}
+							{fbvElement type="checkbox" id="validation" label="plugins.importexport.datacite.validation" checked=$validation|default:true}
 						{/fbvFormSection}
 						{if !empty($actionNames)}
 							{fbvFormSection}

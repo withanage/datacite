@@ -1,8 +1,8 @@
 ================================
-=== OJS DataCite Export Plugin
+=== OMP DataCite Export Plugin
 === Version: 1.0
-=== Author: Florain Grandel <jerico.dev@gmail.com>
-=== Author: Bozana Bokan <bozana.bokan@posteo.net>
+=== Author: Dulip Withanage
+=== Based on OJS datacite plugin
 ================================
 
 About
@@ -12,17 +12,17 @@ the registration of DOIs with DataCite.
 
 License
 -------
-This plugin is licensed under the GNU General Public License v2. See the file COPYING for the 
+This plugin is licensed under the GNU General Public License v2. See the file COPYING for the
 complete terms of this license.
 
 System Requirements
 -------------------
-Same requirements as the OJS 3.0 core.
+OMP 3.1.2 +
 
 Note
 ---------
-In order to register DOIs with DataCite from within OJS you will have to enter your username and password. 
-If you do not enter or have your own username and password you'll still be able to export into the 
-DataCite XML format but you cannot register your DOIs from within OJS.
+In order to register DOIs with DataCite from within OMP you will have to enter your username and password.
+If you do not enter or have your own username and password you'll still be able to export into the
+DataCite XML format but you cannot register your DOIs from within OMP.
 Please note, that the passowrd will be saved as plain text, i.e. not encrypted, due to DataCite registration service requirements.
 

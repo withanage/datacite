@@ -143,7 +143,7 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 				$noValidation = $request->getUserVar('validation') ? false : true;
 
 				if (empty($selectedSubmissions) && empty($selectedIssues) && empty($selectedRepresentations)) {
-					fatalError(__('plugins.importexport.common.error.noObjectsSelected'));
+					fatalError(__('plugins.importexport.datacite.error.noObjectsSelected'));
 				}
 				if (!empty($selectedSubmissions)) {
 					$objects = $this->getPublishedArticles($selectedSubmissions, $context);
@@ -237,7 +237,7 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 	 * the successful deposit.
 	 */
 	function getDepositSuccessNotificationMessageKey() {
-		return 'plugins.importexport.common.register.success';
+		return 'plugins.importexport.datacite.register.success';
 	}
 
 	/**
@@ -290,10 +290,10 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 	 */
 	function getStatusNames() {
 		return array(
-			EXPORT_STATUS_ANY => __('plugins.importexport.common.status.any'),
-			EXPORT_STATUS_NOT_DEPOSITED => __('plugins.importexport.common.status.notDeposited'),
-			EXPORT_STATUS_MARKEDREGISTERED => __('plugins.importexport.common.status.markedRegistered'),
-			EXPORT_STATUS_REGISTERED => __('plugins.importexport.common.status.registered'),
+			EXPORT_STATUS_ANY => __('plugins.importexport.datacite.status.any'),
+			EXPORT_STATUS_NOT_DEPOSITED => __('plugins.importexport.datacite.status.notDeposited'),
+			EXPORT_STATUS_MARKEDREGISTERED => __('plugins.importexport.datacite.status.markedRegistered'),
+			EXPORT_STATUS_REGISTERED => __('plugins.importexport.datacite.status.registered'),
 		);
 	}
 
@@ -326,9 +326,9 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 	 */
 	function getExportActionNames() {
 		return array(
-			EXPORT_ACTION_DEPOSIT => __('plugins.importexport.common.action.register'),
-			EXPORT_ACTION_EXPORT => __('plugins.importexport.common.action.export'),
-			EXPORT_ACTION_MARKREGISTERED => __('plugins.importexport.common.action.markRegistered'),
+			EXPORT_ACTION_DEPOSIT => __('plugins.importexport.datacite.action.register'),
+			EXPORT_ACTION_EXPORT => __('plugins.importexport.datacite.action.export'),
+			EXPORT_ACTION_MARKREGISTERED => __('plugins.importexport.datacite.action.markRegistered'),
 		);
 	}
 
@@ -498,8 +498,8 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 		$context = $contextDao->getByPath($contextPath);
 		if (!$context) {
 			if ($contextPath != '') {
-				echo __('plugins.importexport.common.cliError') . "\n";
-				echo __('plugins.importexport.common.error.unknownJournal', array('journalPath' => $contextPath)) . "\n\n";
+				echo __('plugins.importexport.datacite.cliError') . "\n";
+				echo __('plugins.importexport.datacite.error.unknownJournal', array('journalPath' => $contextPath)) . "\n\n";
 			}
 			$this->usage($scriptName);
 			return;
@@ -511,8 +511,8 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 			}
 			$outputDir = dirname($outputFile);
 			if (!is_writable($outputDir) || (file_exists($outputFile) && !is_writable($outputFile))) {
-				echo __('plugins.importexport.common.cliError') . "\n";
-				echo __('plugins.importexport.common.export.error.outputFileNotWritable', array('param' => $outputFile)) . "\n\n";
+				echo __('plugins.importexport.datacite.cliError') . "\n";
+				echo __('plugins.importexport.datacite.export.error.outputFileNotWritable', array('param' => $outputFile)) . "\n\n";
 				$this->usage($scriptName);
 				return;
 			}
@@ -540,8 +540,8 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 
 		}
 		if (empty($objects)) {
-			echo __('plugins.importexport.common.cliError') . "\n";
-			echo __('plugins.importexport.common.error.unknownObjects') . "\n\n";
+			echo __('plugins.importexport.datacite.cliError') . "\n";
+			echo __('plugins.importexport.datacite.error.unknownObjects') . "\n\n";
 			$this->usage($scriptName);
 			return;
 		}
@@ -575,9 +575,9 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 			$fileManager->writeFile($exportFileName, $exportXml);
 			$result = $this->depositXML($objects, $context, $exportFileName);
 			if ($result === true) {
-				echo __('plugins.importexport.common.register.success') . "\n";
+				echo __('plugins.importexport.datacite.register.success') . "\n";
 			} else {
-				echo __('plugins.importexport.common.cliError') . "\n";
+				echo __('plugins.importexport.datacite.cliError') . "\n";
 				if (is_array($result)) {
 					foreach($result as $error) {
 						assert(is_array($error) && count($error) >= 1);
@@ -586,7 +586,7 @@ abstract class PubObjectsExportPlugin extends ImportExportPlugin {
 					}
 					echo "\n";
 				} else {
-					echo __('plugins.importexport.common.register.error.mdsError', array('param' => ' - ')) . "\n\n";
+					echo __('plugins.importexport.datacite.register.error.mdsError', array('param' => ' - ')) . "\n\n";
 				}
 				$this->usage($scriptName);
 			}

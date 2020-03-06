@@ -112,7 +112,7 @@ class DataciteInfoSender extends ScheduledTask {
 			if ($doiPrefix) {
 				$journals[] = $journal;
 			} else {
-				$this->addExecutionLogEntry(__('plugins.importexport.common.senderTask.warning.noDOIprefix', array('path' => $journal->getPath())), SCHEDULED_TASK_MESSAGE_TYPE_WARNING);
+				$this->addExecutionLogEntry(__('plugins.importexport.datacite.senderTask.warning.noDOIprefix', array('path' => $journal->getPath())), SCHEDULED_TASK_MESSAGE_TYPE_WARNING);
 			}
 		}
 		return $journals;
@@ -163,7 +163,7 @@ class DataciteInfoSender extends ScheduledTask {
 			}
 		} else {
 			$this->addExecutionLogEntry(
-				__('plugins.importexport.common.register.error.mdsError', array('param' => ' - ')),
+				__('plugins.importexport.datacite.register.error.mdsError', array('param' => ' - ')),
 				SCHEDULED_TASK_MESSAGE_TYPE_WARNING
 			);
 		}

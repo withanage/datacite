@@ -67,9 +67,9 @@ class DataciteSettingsForm extends Form {
 					'settings',
 					new AjaxModal(
 							$dispatcher->url($request, ROUTE_COMPONENT, null, 'grid.settings.plugins.SettingsPluginGridHandler', 'manage', null, array('plugin' => 'doipubidplugin', 'category' => 'pubIds')),
-							__('plugins.importexport.common.settings.DOIPluginSettings')
+							__('plugins.importexport.datacite.settings.DOIPluginSettings')
 							),
-					__('plugins.importexport.common.settings.DOIPluginSettings'),
+					__('plugins.importexport.datacite.settings.DOIPluginSettings'),
 					null
 					);
 			$this->setData('doiPluginSettingsLinkAction', $doiPluginSettingsLinkAction);

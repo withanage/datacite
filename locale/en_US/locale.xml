@@ -36,8 +36,21 @@
 
 	<message key="plugins.importexport.datacite.senderTask.name">DataCite automatic registration task</message>
 
-	<message key="plugins.importexport.datacite.cliUsage"><![CDATA[Usage: 
+	<message key="plugins.importexport.datacite.cliUsage"><![CDATA[Usage:
 {$scriptName} {$pluginName} export [outputFileName] [journal_path] {issues|articles|galleys} objectId1 [objectId2] ...
 {$scriptName} {$pluginName} register [journal_path] {issues|articles|galleys} objectId1 [objectId2] ...
 ]]></message>
+
+	<message key="plugins.importexport.datacite.settings">Settings</message>
+	<message key="plugins.importexport.datacite.validation">Validation</message>
+	<message key="plugins.importexport.datacite.action.export">Export</message>
+	<message key="plugins.importexport.datacite.action.register">Register</message>
+	<message key="plugins.importexport.datacite.action.markRegistered">Mark Registered</message>
+	<message key="plugins.importexport.datacite.export.articles">Export</message>
+	<message key="plugins.importexport.datacite.settings.DOIPluginSettings">DOI Plugin Settings</message>
+	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
+	<message key="plugins.importexport.datacite.settings.form.password.description">Description</message>
+
+
+
 </locale>

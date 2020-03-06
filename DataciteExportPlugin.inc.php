@@ -234,11 +234,11 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 		$result = true;
 		$response = curl_exec($curlCh);
 		if ($response === false) {
-			$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: No response from server."));
+			$result = array(array('plugins.importexport.datacite.register.error.mdsError', "Registering DOI $doi: No response from server."));
 		} else {
 			$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
 			if ($status != DATACITE_API_RESPONSE_OK) {
-				$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: $status - $response"));
+				$result = array(array('plugins.importexport.datacite.register.error.mdsError', "Registering DOI $doi: $status - $response"));
 			}
 		}
 		// Mint a DOI.
@@ -249,11 +249,11 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
 			$response = curl_exec($curlCh);
 			if ($response === false) {
-				$result = array(array('plugins.importexport.common.register.error.mdsError', 'Registering DOI $doi: No response from server.'));
+				$result = array(array('plugins.importexport.datacite.register.error.mdsError', 'Registering DOI $doi: No response from server.'));
 			} else {
 				$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
 				if ($status != DATACITE_API_RESPONSE_OK) {
-					$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: $status - $response"));
+					$result = array(array('plugins.importexport.datacite.register.error.mdsError', "Registering DOI $doi: $status - $response"));
 				}
 			}
 		}
@@ -308,7 +308,7 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 					}
 					$fileManager->deleteByPath($finalExportFileName);
 				} else {
-					echo __('plugins.importexport.common.cliError') . "\n";
+					echo __('plugins.importexport.datacite.cliError') . "\n";
 					echo __('manager.plugins.tarCommandNotFound') . "\n\n";
 					$this->usage($scriptName);
 				}
@@ -332,9 +332,9 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 					$fileManager->deleteByPath($exportFileName);
 				}
 				if (empty($resultErrors)) {
-					echo __('plugins.importexport.common.register.success') . "\n";
+					echo __('plugins.importexport.datacite.register.success') . "\n";
 				} else {
-					echo __('plugins.importexport.common.cliError') . "\n";
+					echo __('plugins.importexport.datacite.cliError') . "\n";
 					foreach($resultErrors as $errors) {
 						foreach ($errors as $error) {
 							assert(is_array($error) && count($error) >= 1);

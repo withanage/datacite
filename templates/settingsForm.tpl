@@ -27,8 +27,8 @@
 		<p class="pkp_help">{translate key="plugins.importexport.datacite.intro"}</p>
 		{fbvFormSection}
 			{fbvElement type="text" id="username" value=$username label="plugins.importexport.datacite.settings.form.username" maxlength="50" size=$fbvStyles.size.MEDIUM}
-			{fbvElement type="text" password="true" id="password" value=$password label="plugins.importexport.common.settings.form.password" maxLength="50" size=$fbvStyles.size.MEDIUM}
-			<span class="instruct">{translate key="plugins.importexport.common.settings.form.password.description"}</span><br/>
+			{fbvElement type="text" password="true" id="password" value=$password label="plugins.importexport.datacite.settings.form.password" maxLength="50" size=$fbvStyles.size.MEDIUM}
+			<span class="instruct">{translate key="plugins.importexport.datacite.settings.form.password.description"}</span><br/>
 		{/fbvFormSection}
 		{fbvFormSection list="true"}
 			{fbvElement type="checkbox" id="automaticRegistration" label="plugins.importexport.datacite.settings.form.automaticRegistration.description" checked=$automaticRegistration|compare:true}
