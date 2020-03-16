@@ -71,7 +71,24 @@
 				<form id="exportSubmissionXmlForm" class="pkp_form" action="{plugin_url path="exportSubmissions"}" method="post">
 					<input type="hidden" name="tab" value="exportSubmissions-tab" />
 					{fbvFormArea id="submissionsXmlForm"}
-
+						{ *
+						{capture assign=submissionsListGridUrl}{url router=$smarty.const.ROUTE_COMPONENT component="grid.pubIds.PubIdExportSubmissionsListGridHandler" op="fetchGrid" plugin="datacite" category="importexport" escape=false}{/capture}
+						{load_url_in_div id="submissionsListGridContainer" url=$submissionsListGridUrl}
+						{fbvFormSection list="true"}
+							{fbvElement type="checkbox" id="validation" label="plugins.importexport.datacite.validation" checked=$validation|default:false}
+						{/fbvFormSection}
+						{if !empty($actionNames)}
+							{fbvFormSection}
+							<ul class="export_actions">
+								{foreach from=$actionNames key=action item=actionName}
+									<li class="export_action">
+										{fbvElement type="submit" label="$actionName" id="$action" name="$action" value="1" class="$action" translate=false inline=true}
+									</li>
+								{/foreach}
+							</ul>
+							{/fbvFormSection}
+						{/if}
+						}
 					{/fbvFormArea}
 				</form>
 			</div>

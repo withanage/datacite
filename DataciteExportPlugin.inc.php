@@ -429,6 +429,51 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 		}
 		return $url;
 	}
+	/**
+	 * Display the plugin.
+	 * @param $args array
+	 * @param $request PKPRequest
+	 */
+	function display($args, $request) {
+		$templateMgr = TemplateManager::getManager($request);
+		$press = $request->getPress();
+
+		parent::display($args, $request);
+
+		$templateMgr->assign('plugin', $this);
+
+		switch (array_shift($args)) {
+			case 'index':
+			case '':
+				/*import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
+				$exportSubmissionsListHandler = new SelectSubmissionsListHandler(array(
+					'title' => 'plugins.importexport.native.exportSubmissionsSelect',
+					'count' => 100,
+					'inputName' => 'selectedSubmissions[]',
+					'lazyLoad' => true,
+				));
+				$templateMgr->assign('exportSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
+				$templateMgr->display($this->getTemplateResource('index.tpl'));*/
+				break;
+
+			case 'export':
+				$exportXml = $this->exportSubmissions(
+					(array) $request->getUserVar('selectedSubmissions'),
+					$request->getContext(),
+					$request->getUser()
+				);
+				import('lib.pkp.classes.file.FileManager');
+				$fileManager = new FileManager();
+				$exportFileName = $this->getExportFileName($this->getExportPath(), 'monographs', $press, '.xml');
+				$fileManager->writeFile($exportFileName, $exportXml);
+				$fileManager->downloadByPath($exportFileName);
+				$fileManager->deleteByPath($exportFileName);
+				break;
+			default:
+				$dispatcher = $request->getDispatcher();
+				$dispatcher->handle404();
+		}
+	}
 
 }
 
