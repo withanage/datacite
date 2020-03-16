@@ -68,10 +68,18 @@
 						$('#exportSubmissionXmlForm').pkpHandler('$.pkp.controllers.form.FormHandler');
 					{rdelim});
 				</script>
-				<form id="exportSubmissionXmlForm" class="pkp_form" action="{plugin_url path="exportSubmissions"}" method="post">
+				<form id="exportSubmissionXmlForm" class="pkp_form" action="{plugin_url path="export"}" method="post">
 					<input type="hidden" name="tab" value="exportSubmissions-tab" />
 					{fbvFormArea id="submissionsXmlForm"}
-
+					{fbvFormSection}
+					{assign var="uuid" value=""|uniqid|escape}
+						<div id="export-submissions-list-handler-{$uuid}">
+							<script type="text/javascript">
+								pkp.registry.init('export-submissions-list-handler-{$uuid}', 'SelectSubmissionsListPanel', {$exportSubmissionsListData});
+							</script>
+						</div>
+					{/fbvFormSection}
+					{fbvFormButtons submitText="plugins.importexport.native.export" hideCancel="true"}
 					{/fbvFormArea}
 				</form>
 			</div>

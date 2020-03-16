@@ -445,19 +445,9 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 		switch (array_shift($args)) {
 			case 'index':
 			case '':
-				/*import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
-				$exportSubmissionsListHandler = new SelectSubmissionsListHandler(array(
-					'title' => 'plugins.importexport.native.exportSubmissionsSelect',
-					'count' => 100,
-					'inputName' => 'selectedSubmissions[]',
-					'lazyLoad' => true,
-				));
-				$templateMgr->assign('exportSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
-				$templateMgr->display($this->getTemplateResource('index.tpl'));*/
-				break;
-
 			case 'export':
-				$exportXml = $this->exportSubmissions(
+				//FIXME remove/change exportSubmissions
+				$exportXml = $this->export(
 					(array) $request->getUserVar('selectedSubmissions'),
 					$request->getContext(),
 					$request->getUser()
@@ -473,6 +463,38 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 				$dispatcher = $request->getDispatcher();
 				$dispatcher->handle404();
 		}
+	}
+
+	/**
+	 * Get the XML for a set of submissions.
+	 * @param $submissionIds array Array of submission IDs
+	 * @param $context Context
+	 * @param $user User
+	 * @return string XML contents representing the supplied submission IDs.
+	 */
+	function export($submissionIds, $context, $user) {
+		$submissionDao = Application::getSubmissionDAO();
+		$xml = '';
+		$filterDao = DAORegistry::getDAO('FilterDAO');
+		$nativeExportFilters = $filterDao->getObjectsByGroup('monograph=>native-xml');
+		assert(count($nativeExportFilters) == 1); // Assert only a single serialization filter
+		$exportFilter = array_shift($nativeExportFilters);
+		$exportFilter->setDeployment(new NativeImportExportDeployment($context, $user));
+		$submissions = array();
+		foreach ($submissionIds as $submissionId) {
+			$submission = $submissionDao->getById($submissionId, $context->getId());
+			if ($submission) $submissions[] = $submission;
+		}
+		libxml_use_internal_errors(true);
+		$submissionXml = $exportFilter->execute($submissions, true);
+		$xml = $submissionXml->saveXml();
+		$errors = array_filter(libxml_get_errors(), function($a) {
+			return $a->level == LIBXML_ERR_ERROR || $a->level == LIBXML_ERR_FATAL;
+		});
+		if (!empty($errors)) {
+			$this->displayXMLValidationErrors($errors, $xml);
+		}
+		return $xml;
 	}
 
 }

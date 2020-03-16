@@ -51,7 +51,16 @@ abstract class DOIPubIdExportPlugin extends PubObjectsExportPlugin {
 				if (empty($doiPrefix)) {
 					$configurationErrors[] = DOI_EXPORT_CONFIG_ERROR_DOIPREFIX;
 				}
-				$templateMgr->display($this->getTemplateResource('index.tpl'));
+				import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
+				$exportSubmissionsListHandler = new SelectSubmissionsListHandler(array(
+				'title' => 'plugins.importexport.native.exportSubmissionsSelect',
+				'count' => 10,//TODO  set the setting for submission total
+				'inputName' => 'selectedSubmissions[]',
+				'lazyLoad' => true,
+			));
+			$templateMgr->assign('exportSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
+
+			$templateMgr->display($this->getTemplateResource('index.tpl'));
 				break;
 		}
 	}
