@@ -44,10 +44,11 @@ define('DATACITE_DESCTYPE_SERIESINFO', 'SeriesInformation');
 define('DATACITE_DESCTYPE_TOC', 'TableOfContents');
 define('DATACITE_DESCTYPE_OTHER', 'Other');
 
-import('lib.pkp.plugins.importexport.native.filter.NativeExportFilter');
+#import('lib.pkp.plugins.importexport.datacite.filter.MonographDataciteXmlFilter');
+import('lib.pkp.plugins.importexport.native.filter.SubmissionNativeXmlFilter');
 
+class DataciteXmlFilter extends SubmissionNativeXmlFilter {
 
-class DataciteXmlFilter extends NativeExportFilter {
 	/**
 	 * Constructor
 	 * @param $filterGroup FilterGroup

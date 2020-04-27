@@ -13,6 +13,7 @@
  * @brief DataCite export/registration plugin.
  */
 
+import('lib.pkp.classes.plugins.ImportExportPlugin');
 import('plugins.importexport.datacite.DOIPubIdExportPlugin');
 
 // DataCite API
@@ -26,8 +27,18 @@ define('DATACITE_API_TESTPREFIX', '10.5072');
 define('DATACITE_EXPORT_FILE_XML', 0x01);
 define('DATACITE_EXPORT_FILE_TAR', 0x02);
 
+import('lib.pkp.plugins.importexport.native.filter.NativeExportFilter');
 
-class DataciteExportPlugin extends DOIPubIdExportPlugin {
+class DataciteExportPlugin extends NativeExportFilter {
+
+/*Constructor
+* @param $filterGroup FilterGroup
+*/
+	function __construct($filterGroup) {
+		$this->setDisplayName('Datacite XML user export');
+		parent::__construct($filterGroup);
+	}
+
 
 	/**
 	 * @see Plugin::getName()
@@ -445,6 +456,7 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 		switch (array_shift($args)) {
 			case 'index':
 			case '':
+				break;
 			case 'export':
 				//FIXME remove/change exportSubmissions
 				$exportXml = $this->export(
@@ -476,10 +488,10 @@ class DataciteExportPlugin extends DOIPubIdExportPlugin {
 		$submissionDao = Application::getSubmissionDAO();
 		$xml = '';
 		$filterDao = DAORegistry::getDAO('FilterDAO');
-		$nativeExportFilters = $filterDao->getObjectsByGroup('monograph=>native-xml');
-		assert(count($nativeExportFilters) == 1); // Assert only a single serialization filter
-		$exportFilter = array_shift($nativeExportFilters);
-		$exportFilter->setDeployment(new NativeImportExportDeployment($context, $user));
+		$DataciteXmlFilters = $filterDao->getObjectsByGroup('monograph=>datacite-xml', $context->getId());
+		assert(count($DataciteXmlFilters) == 1); // Assert only a single serialization filter
+		$exportFilter = array_shift($DataciteXmlFilters);
+		$exportFilter->setDeployment($this->getDeployment());
 		$submissions = array();
 		foreach ($submissionIds as $submissionId) {
 			$submission = $submissionDao->getById($submissionId, $context->getId());

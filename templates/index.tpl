@@ -79,7 +79,7 @@
 							</script>
 						</div>
 					{/fbvFormSection}
-					{fbvFormButtons submitText="plugins.importexport.native.export" hideCancel="true"}
+					{fbvFormButtons submitText="plugins.importexport.datacite.export" hideCancel="true"}
 					{/fbvFormArea}
 				</form>
 			</div>

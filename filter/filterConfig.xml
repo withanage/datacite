@@ -13,42 +13,61 @@
 <filterConfig>
 	<filterGroups>
 		<!-- DataCite XML issue output -->
+		<!-- DataCite XML article output -->
 		<filterGroup
+				symbolic="monograph=>datacite-xml"
+				displayName="plugins.importexport.datacite.displayName"
+				description="plugins.importexport.datacite.description"
+				inputType="class::classes.monograph.Monograph[]"
+				outputType="xml::schema(http://schema.datacite.org/meta/kernel-4/metadata.xsd)" />
+		<filterGroup
+				symbolic="datacite-xml=>monograph"
+				displayName="plugins.importexport.datacite.displayName"
+				description="plugins.importexport.datacite.description"
+				inputType="xml::schema(plugins/importexport/datacite/datacite.xsd)"
+				outputType="class::classes.monograph.Monograph[]" />
+
+
+		<!--<filterGroup
 			symbolic="issue=>datacite-xml"
 			displayName="plugins.importexport.datacite.displayName"
 			description="plugins.importexport.datacite.description"
 			inputType="class::classes.issue.Issue"
 			outputType="xml::schema(http://schema.datacite.org/meta/kernel-4/metadata.xsd)" />
-		<!-- DataCite XML article output -->
-		<filterGroup
-			symbolic="article=>datacite-xml"
-			displayName="plugins.importexport.datacite.displayName"
-			description="plugins.importexport.datacite.description"
-			inputType="class::classes.article.Article"
-			outputType="xml::schema(http://schema.datacite.org/meta/kernel-4/metadata.xsd)" />
-		<!-- DataCite XML galley output -->
+		&lt;!&ndash; DataCite XML galley output &ndash;&gt;
 		<filterGroup
 			symbolic="galley=>datacite-xml"
 			displayName="plugins.importexport.datacite.displayName"
 			description="plugins.importexport.datacite.description"
 			inputType="class::classes.article.ArticleGalley"
-			outputType="xml::schema(http://schema.datacite.org/meta/kernel-4/metadata.xsd)" />
+			outputType="xml::schema(http://schema.datacite.org/meta/kernel-4/metadata.xsd)" />-->
 	</filterGroups>
 	<filters>
-		<!-- DataCite XML issue output -->
+		<!-- Datacite XML monograph output -->
+		<filter
+				inGroup="monograph=>datacite-xml"
+				class="plugins.importexport.datacite.filter.MonographDataciteXmlFilter"
+				isTemplate="0" />
+		<!-- Datacite XML monograph input -->
+		<filter
+				inGroup="datacite-xml=>monograph"
+				class="plugins.importexport.datacite.filter.DataciteXmlMonographFilter"
+				isTemplate="0" />
+
+		<!--&lt;!&ndash; DataCite XML issue output &ndash;&gt;
 		<filter
 			inGroup="issue=>datacite-xml"
 			class="plugins.importexport.datacite.filter.DataciteXmlFilter"
 			isTemplate="0" />
-		<!-- DataCite XML article output -->
+		&lt;!&ndash; DataCite XML article output &ndash;&gt;
 		<filter
 			inGroup="article=>datacite-xml"
 			class="plugins.importexport.datacite.filter.DataciteXmlFilter"
 			isTemplate="0" />
-		<!-- DataCite XML article output -->
+		&lt;!&ndash; DataCite XML article output &ndash;&gt;
 		<filter
 			inGroup="galley=>datacite-xml"
 			class="plugins.importexport.datacite.filter.DataciteXmlFilter"
-			isTemplate="0" />
+			isTemplate="0" />-->
 	</filters>
 </filterConfig>

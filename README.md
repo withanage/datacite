@@ -26,3 +26,6 @@ If you do not enter or have your own username and password you'll still be able 
 DataCite XML format but you cannot register your DOIs from within OMP.
 Please note, that the passowrd will be saved as plain text, i.e. not encrypted, due to DataCite registration service requirements.
 
+```sql
+INSERT INTO `omp3_2_0`.`filter_groups` ( `symbolic`, `display_name`, `description`, `input_type`, `output_type`) VALUES ('monograph=>datacite-xml', 'plugins.importexport.datacite.displayName', 'plugins.importexport.datacite.description', 'class::classes.submission.Submission[]', 'xml::schema(http://schema.datacite.org/meta/kernel-4/metadata.xsd)');
+```
