@@ -13,7 +13,7 @@
  * @brief Class that converts a Monograph to a Native XML document.
  */
 
-import('lib.pkp.plugins.importexport.datacite.filter.MonographDataciteXmlFilter');
+import('lib.pkp.plugins.importexport.datacite.filter.SubmissionNativeXmlFilter');
 
 class MonographNativeXmlFilter extends SubmissionNativeXmlFilter {
 	/**
@@ -32,7 +32,7 @@ class MonographNativeXmlFilter extends SubmissionNativeXmlFilter {
 	 * @copydoc PersistableFilter::getClassName()
 	 */
 	function getClassName() {
-		return 'plugins.importexport.data.filter.MonographDataciteXmlFilter';
+		return 'plugins.importexport.datacite.filter.MonographNativeXmlFilter';
 	}
 
 
