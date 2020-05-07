@@ -1,82 +1,69 @@
-{**
- * plugins/importexport/native/templates/index.tpl
- *
- * Copyright (c) 2014-2019 Simon Fraser University
- * Copyright (c) 2003-2019 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
- *
- * List of operations this plugin can perform
- *}
+
 {strip}
-{assign var="pageTitle" value="plugins.importexport.native.displayName"}
-{include file="common/header.tpl"}
+	{assign var="pageTitle" value="plugins.importexport.datacite.displayName"}
+	{include file="common/header.tpl"}
 {/strip}
 
 <script type="text/javascript">
 	// Attach the JS file tab handler.
-	$(function() {ldelim}
+	$(function () {ldelim}
 		$('#importExportTabs').pkpHandler('$.pkp.controllers.TabHandler');
 		$('#importExportTabs').tabs('option', 'cache', true);
-	{rdelim});
+		{rdelim});
 </script>
 <div id="importExportTabs" class="pkp_controllers_tab">
 	<ul>
-		<li><a href="#import-tab">{translate key="plugins.importexport.native.import"}</a></li>
-		<li><a href="#export-tab">{translate key="plugins.importexport.native.export"}</a></li>
+		<li><a href="#export-tab">{translate key="plugins.importexport.datacite.export"}</a></li>
+		<li><a href="#settings-tab">{translate key="plugins.importexport.datacite.settings"}</a></li>
 	</ul>
-	<div id="import-tab">
+	<div id="settings-tab">
 		<script type="text/javascript">
 			$(function() {ldelim}
 				// Attach the form handler.
-				$('#importXmlForm').pkpHandler('$.pkp.controllers.form.FileUploadFormHandler',
-					{ldelim}
-						$uploader: $('#plupload'),
-							uploaderOptions: {ldelim}
-								uploadUrl: {plugin_url|json_encode path="uploadImportXML" escape=false},
-								baseUrl: {$baseUrl|json_encode}
-							{rdelim}
-					{rdelim}
-				);
-			{rdelim});
+				$('#dataciteSettingsForm').pkpHandler('$.pkp.controllers.form.FormHandler');
+				{rdelim});
 		</script>
-		<form id="importXmlForm" class="pkp_form" action="{plugin_url path="importBounce"}" method="post">
-			{csrf}
-			{fbvFormArea id="importForm"}
-				{* Container for uploaded file *}
-				<input type="hidden" name="temporaryFileId" id="temporaryFileId" value="" />
+		<form class="pkp_form" id="dataciteSettingsForm" method="post" action="{plugin_url path="settings" verb="save"}">
 
-				{fbvFormArea id="file"}
-					{fbvFormSection title="plugins.importexport.native.import.instructions"}
-						{include file="controllers/fileUploadContainer.tpl" id="plupload"}
-					{/fbvFormSection}
-				{/fbvFormArea}
+			{fbvFormArea id="dataciteSettingsFormArea"}
+				<p class="pkp_help">{translate key="plugins.importexport.datacite.settings.description"}</p>
+				<p class="pkp_help">{translate key="plugins.importexport.datacite.intro"}</p>
+			{fbvFormSection}
+			{fbvElement type="text" id="username" value=$username label="plugins.importexport.datacite.settings.form.username" maxlength="50" size=$fbvStyles.size.MEDIUM}
+			{fbvElement type="text" password="true" id="password" value=$password label="plugins.importexport.datacite.settings.form.password" maxLength="50" size=$fbvStyles.size.MEDIUM}
+				<span class="instruct">{translate key="plugins.importexport.datacite.settings.form.password.description"}</span><br/>
+			{/fbvFormSection}
 
-				{fbvFormButtons submitText="plugins.importexport.native.import" hideCancel="true"}
+			{fbvFormSection list="true"}
+			{fbvElement type="checkbox" id="testMode" label="plugins.importexport.datacite.settings.form.testMode.description" checked=$testMode|compare:true}
+			{/fbvFormSection}
 			{/fbvFormArea}
+			{fbvFormButtons submitText="common.save"}
+
 		</form>
+
 	</div>
 	<div id="export-tab">
 		{if !$currentContext->getSetting('publisher') || !$currentContext->getSetting('location') || !$currentContext->getSetting('codeType') || !$currentContext->getSetting('codeValue')}
-			{translate key="plugins.importexport.native.onix30.pressMissingFields"}
+			{translate key="plugins.importexport.datacite.onix30.pressMissingFields"}
 		{/if}
 		<script type="text/javascript">
-			$(function() {ldelim}
+			$(function () {ldelim}
 				// Attach the form handler.
 				$('#exportXmlForm').pkpHandler('$.pkp.controllers.form.FormHandler');
-			{rdelim});
+				{rdelim});
 		</script>
 		<form id="exportXmlForm" class="pkp_form" action="{plugin_url path="export"}" method="post">
 			{csrf}
 			{fbvFormArea id="exportForm"}
-				{fbvFormSection}
-					{assign var="uuid" value=""|uniqid|escape}
-					<div id="export-submissions-list-handler-{$uuid}">
-						<script type="text/javascript">
-							pkp.registry.init('export-submissions-list-handler-{$uuid}', 'SelectSubmissionsListPanel', {$exportSubmissionsListData});
-						</script>
-					</div>
-				{/fbvFormSection}
-				{fbvFormButtons submitText="plugins.importexport.native.export" hideCancel="true"}
+			{fbvFormSection}
+			{assign var="uuid" value=""|uniqid|escape}
+				<div id="export-submissions-list-handler-{$uuid}">
+					<script type="text/javascript">
+						pkp.registry.init('export-submissions-list-handler-{$uuid}', 'SelectSubmissionsListPanel', {$exportSubmissionsListData});
+					</script>
+				</div>
+			{/fbvFormSection}
 			{/fbvFormArea}
 		</form>
 	</div>

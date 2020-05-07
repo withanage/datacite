@@ -1,12 +1,4 @@
-{**
- * plugins/importexport/native/templates/results.tpl
- *
- * Copyright (c) 2014-2019 Simon Fraser University
- * Copyright (c) 2003-2019 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
- *
- * Result of operations this plugin performed
- *}
+
 {if $submissionsWarnings}
 	<h2>{translate key="plugins.importexport.common.warningsEncountered"}</h2>
 	{foreach from=$submissionsWarnings item=submissionsWarningMessages name=submissionsWarnings}
@@ -40,7 +32,7 @@
 		{/if}
 	{/foreach}
 {else}
-	{translate key="plugins.importexport.native.importComplete"}
+	{translate key="plugins.importexport.datacite.importComplete"}
 	<ul>
 		{foreach from=$submissions item=submission}
 			<li>{$submission->getLocalizedTitle()|strip_unsafe_html}</li>

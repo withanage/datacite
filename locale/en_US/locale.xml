@@ -1,26 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE locale SYSTEM "../../../../../lib/pkp/dtd/locale.dtd">
-
-<!--
-  * locale.xml
-  *
-  * Copyright (c) 2014-2019 Simon Fraser University
-  * Copyright (c) 2003-2019 John Willinsky
-  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
-  *
-  * Localization strings for the en_US (U.S. English) locale.
-  -->
-
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE locale SYSTEM "../../../../../lib/pkp/dtd/locale.dtd">
 <locale name="en_US" full_name="U.S. English">
-	<message key="plugins.importexport.native.displayName">Native XML Plugin</message>
-	<message key="plugins.importexport.native.description">Import and export books in OMP's native XML format.</message>
-	<message key="plugins.importexport.native.import">Import</message>
-	<message key="plugins.importexport.native.import.instructions">Upload XML file to import</message>
-	<message key="plugins.importexport.native.export">Export</message>
-	<message key="plugins.importexport.native.exportSubmissionsSelect">Select monographs to export</message>
-	<message key="plugins.importexport.native.results">Results</message>
-	<message key="plugins.inportexport.native.uploadFile">Please upload a file under "Import" in order to continue.</message>
-	<message key="plugins.importexport.native.importComplete">The import completed successfully. The following items were imported:</message>
-	<message key="plugins.importexport.native.onix30.pressMissingFields">This press is missing some required information for ONIX metadata used in this export. Please go to Settings &gt; Workflow &gt; Production and fill in the missing details.</message>
-	<message key="plugins.importexport.native.error.unknownSeries">Unknown series {$param}</message>
+	<message key="plugins.importexport.datacite.displayName">Datacite XML Plugin</message>
+	<message key="plugins.importexport.datacite.description">Import and export books in OMP's datacite XML format.</message>
+	<message key="plugins.importexport.datacite.export">Export</message>
+	<message key="plugins.importexport.datacite.exportSubmissionsSelect">Select monographs to export</message>
+	<message key="plugins.importexport.datacite.results">Results</message>
+	<message key="plugins.importexport.datacite.settings.description">Description</message>
+	<message key="plugins.importexport.datacite.intro"><![CDATA[ If you want to register DOIs with mEDRA, please follow the directions on the <a href="http://www.medra.org/en/guide.htm" target="_blank">mEDRA homepage</a> to receive a username and password. If you do not have your own username and password you'll still be able to export into the mEDRA XML format (Onix for DOI) but you cannot register your DOIs with mEDRA from within OMP. Please note that the password will be saved as plain text, i.e. not encrypted, due to the mEDRA registration service requirements.]]></message>
+	<message key="plugins.importexport.datacite.settings">Settings</message>
+	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
+	<message key="plugins.importexport.datacite.settings.form.password.description"></message>
+	<message key="plugins.importexport.datacite.settings.form.username">Username (symbol)</message>
+	<message key="plugins.importexport.datacite.settings.form.usernameRequired">Please enter the username (symbol) you got from DataCite. The username may not contain colons.</message>
+	<message key="plugins.importexport.datacite.settings.form.automaticRegistration.description">OMP will deposit DOIs automatically to DataCite. Please note that this may take a short amount of time after publication to process (e.g. depending on your cronjob configuration). You can check for all unregistered DOIs.</message>
+	<message key="plugins.importexport.datacite.settings.form.testMode.description">Use the DataCite test prefix for DOI registration. Please do not forget to remove this option for the production.</message>
+	<message key="plugins.importexport.datacite.senderTask.name">DataCite automatic registration task</message>
+	<message key="plugins.importexport.datacite.cliUsage"><![CDATA[Usage: {$scriptName} {$pluginName} export [outputFileName] [journal_path] {issues|articles|galleys} objectId1 [objectId2] ... {$scriptName} {$pluginName} register [journal_path] {issues|articles|galleys} objectId1 [objectId2] ...]]></message>
 </locale>

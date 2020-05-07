@@ -1,25 +1,29 @@
 <?php
 
 /**
- * @file plugins/importexport/native/NativeImportExportPlugin.inc.php
- *
- * Copyright (c) 2014-2019 Simon Fraser University
- * Copyright (c) 2003-2019 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
- *
- * @class NativeImportExportPlugin
- * @ingroup plugins_importexport_native
- *
- * @brief Native XML import/export plugin
+ * @file plugins/importexport/datacite/DataciteExportPlugin.inc.php* Copyright (c) 2003-2019 John Willinsky* @class DataciteExportPlugin
+ * @ingroup plugins_importexport_datacite* @brief Datacite XML import/export plugin
  */
-
 import('lib.pkp.classes.plugins.ImportExportPlugin');
+import('plugins.importexport.datacite.DataciteExportDeployment');
 
-class NativeImportExportPlugin extends ImportExportPlugin {
+
+define('DATACITE_API_RESPONSE_OK', 201);
+define('DATACITE_API_URL', 'https://mds.datacite.org/');
+
+define('DATACITE_API_TESTPREFIX', '10.5072');
+
+define('DATACITE_EXPORT_FILE_XML', 0x01);
+define('DATACITE_EXPORT_FILE_TAR', 0x02);
+
+
+class DataciteExportPlugin extends ImportExportPlugin {
+
 	/**
 	 * Constructor
 	 */
 	function __construct() {
+
 		parent::__construct();
 	}
 
@@ -27,12 +31,14 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 	 * @copydoc Plugin::register()
 	 */
 	function register($category, $path, $mainContextId = null) {
+
 		$success = parent::register($category, $path, $mainContextId);
 		if (!Config::getVar('general', 'installed') || defined('RUNNING_UPGRADE')) return $success;
 		if ($success && $this->getEnabled()) {
 			$this->addLocaleData();
-			$this->import('NativeImportExportDeployment');
+			$this->import('DataciteExportDeployment');
 		}
+
 		return $success;
 	}
 
@@ -42,7 +48,8 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 	 * @return String name of plugin
 	 */
 	function getName() {
-		return 'NativeImportExportPlugin';
+
+		return 'DataciteExportPlugin';
 	}
 
 	/**
@@ -50,7 +57,8 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 	 * @return string
 	 */
 	function getDisplayName() {
-		return __('plugins.importexport.native.displayName');
+
+		return __('plugins.importexport.datacite.displayName');
 	}
 
 	/**
@@ -58,15 +66,26 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 	 * @return string
 	 */
 	function getDescription() {
-		return __('plugins.importexport.native.description');
+
+		return __('plugins.importexport.datacite.description');
 	}
 
 	/**
 	 * @copydoc ImportExportPlugin::getPluginSettingsPrefix()
 	 */
 	function getPluginSettingsPrefix() {
-		return 'native';
+
+		return 'datacite';
 	}
+	function updateSettings($request) {
+		$contextId = $request->getContext()->getId();
+		$userVars = $request->getUserVars();
+		$this->updateSetting($contextId,"username",$userVars["username"]);
+		$this->updateSetting($contextId,"password",$userVars["password"]);
+		$this->updateSetting($contextId,"testMode",$userVars["testMode"]);
+
+	}
+
 
 	/**
 	 * Display the plugin.
@@ -74,102 +93,42 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 	 * @param $request PKPRequest
 	 */
 	function display($args, $request) {
+
 		$templateMgr = TemplateManager::getManager($request);
-		$press = $request->getPress();
-
 		parent::display($args, $request);
-
 		$templateMgr->assign('plugin', $this);
-
 		switch (array_shift($args)) {
 			case 'index':
+			case 'settings':
+			$this->updateSettings($request);
+
+
 			case '':
 				import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
+				$press = $request->getPress();
+
+				$username = $this->getSetting($press->getId(), 'username');
+				$templateMgr->assign('username',$username);
+				$password = $this->getSetting($press->getId(), 'password');
+				$templateMgr->assign('password',$password);
+				$testMode = $this->getSetting($press->getId(), 'testMode');
+				$templateMgr->assign('testMode',$testMode);
 				$exportSubmissionsListHandler = new SelectSubmissionsListHandler(array(
-					'title' => 'plugins.importexport.native.exportSubmissionsSelect',
-					'count' => 100,
+					'title' => 'plugins.importexport.datacite.exportSubmissionsSelect',
+					'count' => 20,
 					'inputName' => 'selectedSubmissions[]',
 					'lazyLoad' => true,
 				));
 				$templateMgr->assign('exportSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
+
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 				break;
-			case 'uploadImportXML':
-				$user = $request->getUser();
-				import('lib.pkp.classes.file.TemporaryFileManager');
-				$temporaryFileManager = new TemporaryFileManager();
-				$temporaryFile = $temporaryFileManager->handleUpload('uploadedFile', $user->getId());
-				if ($temporaryFile) {
-					$json = new JSONMessage(true);
-					$json->setAdditionalAttributes(array(
-						'temporaryFileId' => $temporaryFile->getId()
-					));
-				} else {
-					$json = new JSONMessage(false, __('common.uploadFailed'));
-				}
-
-				return $json->getString();
-			case 'importBounce':
-				$json = new JSONMessage(true);
-				$json->setEvent('addTab', array(
-					'title' => __('plugins.importexport.native.results'),
-					'url' => $request->url(null, null, null, array('plugin', $this->getName(), 'import'), array('temporaryFileId' => $request->getUserVar('temporaryFileId'))),
-				));
-				return $json->getString();
-			case 'import':
-				AppLocale::requireComponents(LOCALE_COMPONENT_PKP_SUBMISSION);
-				$temporaryFileId = $request->getUserVar('temporaryFileId');
-				$temporaryFileDao = DAORegistry::getDAO('TemporaryFileDAO');
-				$user = $request->getUser();
-				$temporaryFile = $temporaryFileDao->getTemporaryFile($temporaryFileId, $user->getId());
-				if (!$temporaryFile) {
-					$json = new JSONMessage(true, __('plugins.inportexport.native.uploadFile'));
-					return $json->getString();
-				}
-				$temporaryFilePath = $temporaryFile->getFilePath();
-
-				$deployment = new DataciteImportExportDeployment($press, $user);
-
-				libxml_use_internal_errors(true);
-				$submissions = $this->importSubmissions(file_get_contents($temporaryFilePath), $deployment);
-				$templateMgr->assign('submissions', $submissions);
-				$validationErrors = array_filter(libxml_get_errors(), function($a) {
-					return $a->level == LIBXML_ERR_ERROR ||  $a->level == LIBXML_ERR_FATAL;
-				});
-				$templateMgr->assign('validationErrors', $validationErrors);
-				libxml_clear_errors();
-
-				// Are there any submissions import errors?
-				$submissionsErrors = $deployment->getProcessedObjectsErrors(ASSOC_TYPE_SUBMISSION);
-				if (!empty($submissionsErrors)) {
-					$templateMgr->assign('submissionsErrors', $submissionsErrors);
-				}
-				// Are there any submissions import warnings?
-				$submissionsWarnings = $deployment->getProcessedObjectsWarnings(ASSOC_TYPE_SUBMISSION);
-				if (!empty($submissionsWarnings)) {
-					$templateMgr->assign('submissionsWarnings', $submissionsWarnings);
-				}
-				// If there are any submissions or validataion errors
-				// delete imported submissions.
-				if (!empty($submissionsErrors) || !empty($validationErrors)) {
-					// remove all imported sumissions
-					$deployment->removeImportedObjects(ASSOC_TYPE_SUBMISSION);
-				}
-				// Display the results
-				$json = new JSONMessage(true, $templateMgr->fetch($this->getTemplateResource('results.tpl')));
-				return $json->getString();
 			case 'export':
-				$exportXml = $this->exportSubmissions(
-					(array) $request->getUserVar('selectedSubmissions'),
-					$request->getContext(),
-					$request->getUser()
+
+				$this->exportSubmissions(
+					(array)$request->getUserVar('selectedSubmissions')
 				);
-				import('lib.pkp.classes.file.FileManager');
-				$fileManager = new FileManager();
-				$exportFileName = $this->getExportFileName($this->getExportPath(), 'monographs', $press, '.xml');
-				$fileManager->writeFile($exportFileName, $exportXml);
-				$fileManager->downloadByPath($exportFileName);
-				$fileManager->deleteByPath($exportFileName);
+
 				break;
 			default:
 				$dispatcher = $request->getDispatcher();
@@ -177,57 +136,40 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 		}
 	}
 
-	/**
-	 * Get the XML for a set of submissions.
-	 * @param $submissionIds array Array of submission IDs
-	 * @param $context Context
-	 * @param $user User
-	 * @return string XML contents representing the supplied submission IDs.
-	 */
-	function exportSubmissions($submissionIds, $context, $user) {
-		$submissionDao = Application::getSubmissionDAO();
-		$xml = '';
-		$filterDao = DAORegistry::getDAO('FilterDAO');
-		$nativeExportFilters = $filterDao->getObjectsByGroup('monograph=>native-xml');
-		assert(count($nativeExportFilters) == 1); // Assert only a single serialization filter
-		$exportFilter = array_shift($nativeExportFilters);
-		$exportFilter->setDeployment(new DataciteImportExportDeployment($context, $user));
-		$submissions = array();
-		foreach ($submissionIds as $submissionId) {
-			$submission = $submissionDao->getById($submissionId, $context->getId());
-			if ($submission) $submissions[] = $submission;
-		}
-		libxml_use_internal_errors(true);
-		$submissionXml = $exportFilter->execute($submissions, true);
-		$xml = $submissionXml->saveXml();
-		$errors = array_filter(libxml_get_errors(), function($a) {
-			return $a->level == LIBXML_ERR_ERROR || $a->level == LIBXML_ERR_FATAL;
-		});
-		if (!empty($errors)) {
-			$this->displayXMLValidationErrors($errors, $xml);
-		}
-		return $xml;
-	}
+	function exportSubmissions($submissionIds) {
 
-	/**
-	 * Get the XML for a set of submissions.
-	 * @param $importXml string XML contents to import
-	 * @param $deployment PKPImportExportDeployment
-	 * @return array Set of imported submissions
-	 */
-	function importSubmissions($importXml, $deployment) {
-		$filterDao = DAORegistry::getDAO('FilterDAO');
-		$nativeImportFilters = $filterDao->getObjectsByGroup('native-xml=>monograph');
-		assert(count($nativeImportFilters) == 1); // Assert only a single unserialization filter
-		$importFilter = array_shift($nativeImportFilters);
-		$importFilter->setDeployment($deployment);
-		return $importFilter->execute($importXml);
+		import('lib.pkp.classes.file.FileManager');
+		$submissionDao = Application::getSubmissionDAO();
+		$request = Application::getRequest();
+		$press = $request->getPress();
+
+		$fileManager = new FileManager();
+
+		foreach ($submissionIds as $submissionId) {
+			$ded = new DataciteExportDeployment($request, $this);
+			$submission = $submissionDao->getById($submissionId, $request->getContext()->getId());
+
+			$DOMDocument = new DOMDocument('1.0', 'utf-8');
+			$DOMDocument->formatOutput = true;
+			$DOMDocument = $ded->createNodes($DOMDocument, $submission);
+
+			$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId, $press, '.xml');
+
+			$contents = $DOMDocument->saveXML();
+			$fileManager->writeFile($exportFileName, $contents);
+			//$fileManager->downloadByPath($exportFileName);
+			//$fileManager->deleteByPath($exportFileName);
+
+		}
+
+
 	}
 
 	/**
 	 * @copydoc ImportExportPlugin::executeCLI
 	 */
 	function executeCLI($scriptName, &$args) {
+
 		fatalError('Not implemented.');
 	}
 
@@ -235,8 +177,8 @@ class NativeImportExportPlugin extends ImportExportPlugin {
 	 * @copydoc ImportExportPlugin::usage
 	 */
 	function usage($scriptName) {
+
 		fatalError('Not implemented.');
 	}
+
 }
-
-

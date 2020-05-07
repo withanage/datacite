@@ -1,19 +1,11 @@
 <?php
 
 /**
- * @file plugins/importexport/native/index.php
- *
- * Copyright (c) 2014-2019 Simon Fraser University
- * Copyright (c) 2003-2019 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
- *
- * @ingroup plugins_importexport_native
- * @brief Wrapper for XML native import/export plugin.
- *
- */
+ * @file plugins/importexport/datacite/index.php* Copyright (c) 2003-2019 John Willinsky* @ingroup plugins_importexport_datacite
+ * @brief Wrapper for XML datacite import/export plugin.*/
 
-require_once('NativeImportExportPlugin.inc.php');
+require_once('DataciteExportPlugin.inc.php');
 
-return new NativeImportExportPlugin();
+return new DataciteExportPlugin();
 
 
