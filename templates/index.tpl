@@ -24,7 +24,13 @@
 				{rdelim});
 		</script>
 		<form class="pkp_form" id="dataciteSettingsForm" method="post" action="{plugin_url path="settings" verb="save"}">
-
+			{if $doiPluginSettingsLinkAction}
+				{fbvFormArea id="doiPluginSettingsLink"}
+				{fbvFormSection}
+					{include file="linkAction/linkAction.tpl" action=$doiPluginSettingsLinkAction}
+				{/fbvFormSection}
+				{/fbvFormArea}
+			{/if}
 			{fbvFormArea id="dataciteSettingsFormArea"}
 				<p class="pkp_help">{translate key="plugins.importexport.datacite.settings.description"}</p>
 				<p class="pkp_help">{translate key="plugins.importexport.datacite.intro"}</p>
@@ -44,9 +50,7 @@
 
 	</div>
 	<div id="export-tab">
-		{if !$currentContext->getSetting('publisher') || !$currentContext->getSetting('location') || !$currentContext->getSetting('codeType') || !$currentContext->getSetting('codeValue')}
-			{translate key="plugins.importexport.datacite.onix30.pressMissingFields"}
-		{/if}
+
 		<script type="text/javascript">
 			$(function () {ldelim}
 				// Attach the form handler.
@@ -64,6 +68,7 @@
 					</script>
 				</div>
 			{/fbvFormSection}
+			{fbvFormButtons submitText="plugins.importexport.datacite.export" hideCancel="true"}
 			{/fbvFormArea}
 		</form>
 	</div>

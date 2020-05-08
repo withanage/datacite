@@ -43,7 +43,10 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$documentNode = $this->createDoiProposal($documentNode, $submission);
 		$documentNode = $this->createPublicationYear($documentNode, $submission);
 		$documentNode = $this->createPublicationPlace($documentNode);
+		$documentNode = $this->createPublisher($documentNode);
+		$documentNode = $this->createAvailability($documentNode, $submission);
 		$documentNode = $this->createRelations($documentNode, $submission);
+
 
 		return $documentNode;
 	}
@@ -97,7 +100,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		$pubId = $submission->getData('pub-id::doi');
 		if (isset($pubId)) {
-			$identifier = $documentNode->createElement("identifier", $pubId);
+			$pubIdSuffix = preg_replace('/^[\d]+(.)[\d]+(\/)/', '', $pubId);
+			$identifier = $documentNode->createElement("identifier", $pubIdSuffix);
 			$e->appendChild($identifier);
 		}
 
@@ -113,8 +117,10 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$locale = $submission->getData('locale');
 		$titles = $documentNode->createElement("titles");
 		$language = $documentNode->createElement("language", substr($locale, 0, 2));
-		$title = $documentNode->createElement("title", $submission->getLocalizedTitle($locale));
-		$titles->appendChild($language);
+		$title = $documentNode->createElement("title");
+		$titleName = $documentNode->createElement("titleName", $submission->getLocalizedTitle($locale));
+		$title->appendChild($titleName);
+		$title->appendChild($language);
 		$titles->appendChild($title);
 		$documentNode->documentElement->appendChild($titles);
 
@@ -219,6 +225,21 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$availabilityType = $documentNode->createElement("availabilityTpe", "Download");
 		$availability->appendChild($availabilityType);
 		$documentNode->documentElement->appendChild($availability);
+
+		return $documentNode;
+
+	}
+
+	function createPublisher($documentNode) {
+		$request = Application::getRequest();
+		$press = $request->getPress();
+		$publisher = $documentNode->createElement("publisher");
+		$institution = $documentNode->createElement("institution");
+		$institutionName = $documentNode->createElement("institutionName",$press->getData('publisher'));
+
+		$institution->appendChild($institutionName);
+		$publisher->appendChild($institution);
+		$documentNode->documentElement->appendChild($publisher);
 
 		return $documentNode;
 
