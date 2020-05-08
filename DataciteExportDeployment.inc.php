@@ -47,7 +47,6 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$documentNode = $this->createAvailability($documentNode, $submission);
 		$documentNode = $this->createRelations($documentNode, $submission);
 
-
 		return $documentNode;
 	}
 
@@ -146,6 +145,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 			$documentNode->documentElement->appendChild($otherTitles);
 		}
+
 		return $documentNode;
 	}
 
@@ -173,7 +173,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		$request = Application::getRequest();
 		$press = $request->getPress();
-		$dataURLPath = Request::url($press->getPath(), 'catalog', 'book', array($submission->getId()));
+		//$dataURLPath = Request::url($press->getPath(), 'catalog', 'book', array($submission->getId()));
+		$dataURLPath = "https://books.ub.uni-heidelberg.de/index.php/arthistoricum/catalog/book/".$submission->getId();
 		$dataURLs = $documentNode->createElement("dataURLs");
 		$dataURL = $documentNode->createElement("dataURL", $dataURLPath);
 		$dataURLs->appendChild($dataURL);
@@ -185,8 +186,14 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	function createDoiProposal($documentNode, $submission) {
 
+		$request = Application::getRequest();
+		$press = $request->getPress();
 		$pubId = $submission->getData('pub-id::doi');
+
 		if (isset($pubId)) {
+			if ($this->getPlugin()->isTestMode($press)) {
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $pubId);
+			}
 			$doiProposal = $documentNode->createElement("doiProposal", $pubId);
 			$documentNode->documentElement->appendChild($doiProposal);
 
@@ -212,7 +219,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$request = Application::getRequest();
 		$press = $request->getPress();
 		$location = $press->getData('location');
-		$publicationPlace = $documentNode->createElement("publicationPlace",$location);
+		$publicationPlace = $documentNode->createElement("publicationPlace", $location);
 		$documentNode->documentElement->appendChild($publicationPlace);
 
 		return $documentNode;
@@ -222,7 +229,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 	function createAvailability($documentNode) {
 
 		$availability = $documentNode->createElement("availability");
-		$availabilityType = $documentNode->createElement("availabilityTpe", "Download");
+		$availabilityType = $documentNode->createElement("availabilityType", "Download");
 		$availability->appendChild($availabilityType);
 		$documentNode->documentElement->appendChild($availability);
 
@@ -231,11 +238,12 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 	}
 
 	function createPublisher($documentNode) {
+
 		$request = Application::getRequest();
 		$press = $request->getPress();
 		$publisher = $documentNode->createElement("publisher");
 		$institution = $documentNode->createElement("institution");
-		$institutionName = $documentNode->createElement("institutionName",$press->getData('publisher'));
+		$institutionName = $documentNode->createElement("institutionName", $press->getData('publisher'));
 
 		$institution->appendChild($institutionName);
 		$publisher->appendChild($institution);
@@ -247,6 +255,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	function createRelations($documentNode, $submission) {
 
+		$request = Application::getRequest();
+		$press = $request->getPress();
 		$relationCount = 0;
 		$chapterDao = DAORegistry::getDAO('ChapterDAO');
 		$chaptersList = $chapterDao->getChapters($submission->getId());
@@ -257,11 +267,14 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 			$chapterDoi = $chapter->getStoredPubId('doi');
 			if (isset($chapterDoi)) {
 
+				if ($this->getPlugin()->isTestMode($press)) {
+					$chapterDoi = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $chapterDoi);
+				}
 				$relation = $documentNode->createElement("relation");
-				$identifier = $documentNode->createElement("identifier",$chapterDoi);
-				$identifierType = $documentNode->createElement("identifierType","DOI");
-				$relationType = $documentNode->createElement("relationType","HasPart");
-				$resourceType = $documentNode->createElement("resourceType","Text");
+				$identifier = $documentNode->createElement("identifier", $chapterDoi);
+				$identifierType = $documentNode->createElement("identifierType", "DOI");
+				$relationType = $documentNode->createElement("relationType", "HasPart");
+				$resourceType = $documentNode->createElement("resourceType", "Text");
 				$relation->appendChild($identifier);
 				$relation->appendChild($identifierType);
 				$relation->appendChild($relationType);
@@ -273,9 +286,10 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 			}
 		}
-		if ($relationCount> 0) {
+		if ($relationCount > 0) {
 			$documentNode->documentElement->appendChild($relations);
 		}
+
 		return $documentNode;
 	}
 
