@@ -10,6 +10,7 @@
 	<message key="plugins.importexport.datacite.settings">Settings</message>
 	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
 	<message key="plugins.importexport.datacite.settings.form.password.description"></message>
+	<message key="plugins.importexport.datacite.settings.form.url">Datacite URL</message>
 	<message key="plugins.importexport.datacite.settings.form.username">Username (symbol)</message>
 	<message key="plugins.importexport.datacite.settings.form.usernameRequired">Please enter the username (symbol) you got from DataCite. The username may not contain colons.</message>
 	<message key="plugins.importexport.datacite.settings.form.automaticRegistration.description">OMP will deposit DOIs automatically to DataCite. Please note that this may take a short amount of time after publication to process (e.g. depending on your cronjob configuration). You can check for all unregistered DOIs.</message>

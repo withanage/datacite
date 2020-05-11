@@ -7,8 +7,6 @@
 import('lib.pkp.classes.plugins.ImportExportPlugin');
 import('plugins.importexport.datacite.DataciteExportDeployment');
 define('DATACITE_API_RESPONSE_OK', array(200,201,302));
-define('DATACITE_API_URL', 'https://mds.datacite.org/');
-define('DATACITE_API_TEST_URL', 'https://labs.da-ra.de/dara/study/importXML?registration=true');
 define('DATACITE_API_TESTPREFIX', '10.17889');
 define('DATACITE_EXPORT_FILE_XML', 0x01);
 define('DATACITE_EXPORT_FILE_TAR', 0x02);
@@ -62,7 +60,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		parent::display($args, $request);
 		$templateMgr->assign('plugin', $this);
 		import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
-		$this->createSettings($request, $templateMgr);
+		$this->getSettings($request, $templateMgr);
 		switch (array_shift($args)) {
 			case 'settings':
 				$this->updateSettings($request);
@@ -93,6 +91,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$contextId = $request->getContext()->getId();
 		$userVars = $request->getUserVars();
 		if (count($userVars) > 0 ){
+			$this->updateSetting($contextId, "api", $userVars["api"]);
 			$this->updateSetting($contextId, "username", $userVars["username"]);
 			$this->updateSetting($contextId, "password", $userVars["password"]);
 			$this->updateSetting($contextId, "testMode", $userVars["testMode"]);
@@ -109,30 +108,53 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		foreach ($submissionIds as $submissionId) {
 			$deployment = new DataciteExportDeployment($request, $this);
 			$submission = $submissionDao->getById($submissionId, $request->getContext()->getId());
+			if ($submission->getData('pub-id::doi')){
 			$DOMDocument = new DOMDocument('1.0', 'utf-8');
 			$DOMDocument->formatOutput = true;
-			$DOMDocument = $deployment->createNodes($DOMDocument, $submission);
+
+			$DOMDocument = $deployment->createNodes($DOMDocument, $submission, null, true);
 			$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId, $press, '.xml');
 			$exportXml = $DOMDocument->saveXML();
 			$fileManager->writeFile($exportFileName, $exportXml);
-			$result = $this->depositXML($submission, $press, $exportFileName);
-			if (is_array($result)) {
-				$resultErrors[] = $result;
-			}
+			$result = $this->depositXML($submission, $press, $exportFileName, true);
 			$fileManager->deleteByPath($exportFileName);
+
+			}
+
+			$chapterDao = DAORegistry::getDAO('ChapterDAO');
+			$chaptersList = $chapterDao->getChapters($submissionId);
+			$chapters = $chaptersList->toAssociativeArray();
+			foreach ($chapters as $chapter) {
+				if ($chapter->getData('pub-id::doi')){
+				$DOMDocumentChapter = new DOMDocument('1.0', 'utf-8');
+				$DOMDocumentChapter->formatOutput = true;
+				$DOMDocumentChapter = $deployment->createNodes($DOMDocumentChapter, $chapter, $submission, false);
+				$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId . 'c' . $chapter->getId(), $press, '.xml');
+				$exportXml = $DOMDocumentChapter->saveXML();
+				$fileManager->writeFile($exportFileName, $exportXml);
+				$result = $this->depositXML($chapter, $press, $exportFileName,false);
+				$fileManager->deleteByPath($exportFileName);
+			}
+			}
+
+
 		}
 	}
 
-	function depositXML($submission, $press, $filename) {
+	function depositXML($object, $press, $filename,$isSubmission) {
 
 		$request = Application::getRequest();
-		$api = ($this->isTestMode($press)) ? DATACITE_API_TEST_URL : DATACITE_API_URL;
-		$doi = $submission->getData('pub-id::doi');
+		$username = $this->getSetting($press->getId(), 'username');
+		$password = $this->getSetting($press->getId(), 'password');
+		$api = $this->getSetting($press->getId(), 'api');
+
+
+		$doi = $object->getData('pub-id::doi');
 		assert(!empty($doi));
 		if ($this->isTestMode($press)) {
 			$doi = PKPString::regexp_replace('#^[^/]+/#', DATACITE_API_TESTPREFIX . '/', $doi);
 		}
-		$url = Request::url($press->getPath(), 'catalog', 'book', array($submission->getId()));
+		$url = Request::url($press->getPath(), 'catalog', 'book', array($object->getId()));
 		assert(!empty($url));
 		$curlCh = curl_init();
 		if ($httpProxyHost = Config::getVar('proxy', 'http_host')) {
@@ -144,8 +166,6 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		}
 		curl_setopt($curlCh, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curlCh, CURLOPT_POST, true);
-		$username = $this->getSetting($press->getId(), 'username');
-		$password = $this->getSetting($press->getId(), 'password');
 		curl_setopt($curlCh, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($curlCh, CURLOPT_USERPWD, "$username:$password");
 		curl_setopt($curlCh, CURLOPT_SSL_VERIFYPEER, false);
@@ -185,9 +205,18 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		}
 		curl_close($curlCh);
 		if ($result === true) {
-			$submission->setData($this->getDepositStatusSettingName(), EXPORT_STATUS_REGISTERED);
-			$submission->setStoredPubId("dara-doi",$doi);
-			$this->saveRegisteredDoi($press, $submission, DATACITE_API_TESTPREFIX);
+			if ($this->isTestMode($press)) {
+				$registeredDoi = PKPString::regexp_replace('#^[^/]+/#', DATACITE_API_TESTPREFIX . '/', $doi);
+			}
+			$object->setData('pub-id::publisher-id', $registeredDoi);
+			if ($isSubmission) {
+				$submissionDao = Application::getSubmissionDAO();
+				$submissionDao->updateObject($object);
+			} else{
+				$chapterDao = DAORegistry::getDAO('ChapterDAO');
+				$chapterDao->updateObject($object);
+			}
+
 		}
 
 		return $result;
@@ -210,17 +239,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return 'datacite';
 	}
 
-	function saveRegisteredDoi($press, $submission, $testPrefix = DATACITE_API_TESTPREFIX) {
 
-		$registeredDoi = $submission->getStoredPubId('doi');
-		assert(!empty($registeredDoi));
-		if ($this->isTestMode($press)) {
-			$registeredDoi = PKPString::regexp_replace('#^[^/]+/#', $testPrefix . '/', $registeredDoi);
-		}
-		$submission->setData($this->getPluginSettingsPrefix() . '::' . DOI_EXPORT_REGISTERED_DOI, $registeredDoi);
-		$dao = $submission->getDAO();
-		$dao->updateObject($submission);
-	}
 
 	function executeCLI($scriptName, &$args) {
 
@@ -232,9 +251,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		fatalError('Not implemented.');
 	}
 
-	private function createSettings($request, TemplateManager $templateMgr) {
+	function getSettings($request, TemplateManager $templateMgr) {
 
 		$press = $request->getPress();
+		$api = $this->getSetting($press->getId(), 'api');
+		$templateMgr->assign('api', $api);
 		$username = $this->getSetting($press->getId(), 'username');
 		$templateMgr->assign('username', $username);
 		$password = $this->getSetting($press->getId(), 'password');
@@ -242,7 +263,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$testMode = $this->getSetting($press->getId(), 'testMode');
 		$templateMgr->assign('testMode', $testMode);
 
-		return array($press, $username, $password, $testMode);
+		return array($press, $api, $username, $password, $testMode);
 	}
 
 }
