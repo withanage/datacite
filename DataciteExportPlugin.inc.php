@@ -6,9 +6,9 @@
  */
 import('lib.pkp.classes.plugins.ImportExportPlugin');
 import('plugins.importexport.datacite.DataciteExportDeployment');
-define('DATACITE_API_RESPONSE_OK', 201);
+define('DATACITE_API_RESPONSE_OK', array(200,201,302));
 define('DATACITE_API_URL', 'https://mds.datacite.org/');
-define('DATACITE_API_TEST_URL', 'https://labs.da-ra.de/dara/study/importXML?registration=false');
+define('DATACITE_API_TEST_URL', 'https://labs.da-ra.de/dara/study/importXML?registration=true');
 define('DATACITE_API_TESTPREFIX', '10.17889');
 define('DATACITE_EXPORT_FILE_XML', 0x01);
 define('DATACITE_EXPORT_FILE_TAR', 0x02);
@@ -20,6 +20,7 @@ define('EXPORT_ACTION_EXPORT', 'export');
 define('EXPORT_ACTION_MARKREGISTERED', 'markRegistered');
 define('EXPORT_ACTION_DEPOSIT', 'deposit');
 define('EXPORT_CONFIG_ERROR_SETTINGS', 0x02);
+define('DOI_EXPORT_REGISTERED_DOI', 'registeredDoi');
 
 class DataciteExportPlugin extends ImportExportPlugin {
 
@@ -60,18 +61,13 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$templateMgr = TemplateManager::getManager($request);
 		parent::display($args, $request);
 		$templateMgr->assign('plugin', $this);
+		import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
+		$this->createSettings($request, $templateMgr);
 		switch (array_shift($args)) {
 			case 'settings':
 				$this->updateSettings($request);
 			case '':
 				import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
-				$press = $request->getPress();
-				$username = $this->getSetting($press->getId(), 'username');
-				$templateMgr->assign('username', $username);
-				$password = $this->getSetting($press->getId(), 'password');
-				$templateMgr->assign('password', $password);
-				$testMode = $this->getSetting($press->getId(), 'testMode');
-				$templateMgr->assign('testMode', $testMode);
 				$exportSubmissionsListHandler = new SelectSubmissionsListHandler(array(
 					'title' => 'plugins.importexport.datacite.exportSubmissionsSelect',
 					'count' => 20,
@@ -96,9 +92,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 		$contextId = $request->getContext()->getId();
 		$userVars = $request->getUserVars();
-		$this->updateSetting($contextId, "username", $userVars["username"]);
-		$this->updateSetting($contextId, "password", $userVars["password"]);
-		$this->updateSetting($contextId, "testMode", $userVars["testMode"]);
+		if (count($userVars) > 0 ){
+			$this->updateSetting($contextId, "username", $userVars["username"]);
+			$this->updateSetting($contextId, "password", $userVars["password"]);
+			$this->updateSetting($contextId, "testMode", $userVars["testMode"]);
+		}
 	}
 
 	function exportSubmissions($submissionIds) {
@@ -165,7 +163,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: No response from server."));
 		} else {
 			$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
-			if ($status != DATACITE_API_RESPONSE_OK) {
+			if (!in_array($status,DATACITE_API_RESPONSE_OK)) {
 				$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: $status - $response"));
 			}
 		}
@@ -180,7 +178,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$result = array(array('plugins.importexport.common.register.error.mdsError', 'Registering DOI $doi: No response from server.'));
 			} else {
 				$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
-				if ($status != DATACITE_API_RESPONSE_OK) {
+				if (!in_array($status,DATACITE_API_RESPONSE_OK)) {
 					$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: $status - $response"));
 				}
 			}
@@ -188,6 +186,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		curl_close($curlCh);
 		if ($result === true) {
 			$submission->setData($this->getDepositStatusSettingName(), EXPORT_STATUS_REGISTERED);
+			$submission->setStoredPubId("dara-doi",$doi);
 			$this->saveRegisteredDoi($press, $submission, DATACITE_API_TESTPREFIX);
 		}
 
@@ -219,7 +218,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			$registeredDoi = PKPString::regexp_replace('#^[^/]+/#', $testPrefix . '/', $registeredDoi);
 		}
 		$submission->setData($this->getPluginSettingsPrefix() . '::' . DOI_EXPORT_REGISTERED_DOI, $registeredDoi);
-		$this->updateObject($submission);
+		$dao = $submission->getDAO();
+		$dao->updateObject($submission);
 	}
 
 	function executeCLI($scriptName, &$args) {
@@ -230,6 +230,19 @@ class DataciteExportPlugin extends ImportExportPlugin {
 	function usage($scriptName) {
 
 		fatalError('Not implemented.');
+	}
+
+	private function createSettings($request, TemplateManager $templateMgr) {
+
+		$press = $request->getPress();
+		$username = $this->getSetting($press->getId(), 'username');
+		$templateMgr->assign('username', $username);
+		$password = $this->getSetting($press->getId(), 'password');
+		$templateMgr->assign('password', $password);
+		$testMode = $this->getSetting($press->getId(), 'testMode');
+		$templateMgr->assign('testMode', $testMode);
+
+		return array($press, $username, $password, $testMode);
 	}
 
 }
