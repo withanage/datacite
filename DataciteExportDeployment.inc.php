@@ -36,8 +36,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$documentNode = $this->createRootNode($documentNode);
 		$documentNode = $this->createResourceType($documentNode);
 		$documentNode = $this->createResourceIdentifier($documentNode, $object);
-		$documentNode = $this->createTitles($documentNode, $object,$parent, $isSubmission);
-		$documentNode = $this->createOtherTitles($documentNode, $object,$parent, $isSubmission);
+		$documentNode = $this->createTitles($documentNode, $object, $parent, $isSubmission);
+		$documentNode = $this->createOtherTitles($documentNode, $object, $parent, $isSubmission);
 		$documentNode = $this->createAuthors($documentNode, $object, $parent, $isSubmission);
 		$documentNode = $this->createDataURLs($documentNode, $object, $parent, $isSubmission);
 		$documentNode = $this->createDoiProposal($documentNode, $object);
@@ -115,7 +115,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	function createTitles($documentNode, $object,$parent, $isSubmission) {
+	function createTitles($documentNode, $object, $parent, $isSubmission) {
 
 		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
 		$titles = $documentNode->createElement("titles");
@@ -130,7 +130,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	function createOtherTitles($documentNode, $object,$parent, $isSubmission) {
+	function createOtherTitles($documentNode, $object, $parent, $isSubmission) {
 
 		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
 		$localizedSubtitle = $object->getLocalizedSubtitle($locale);
@@ -180,6 +180,19 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
+	private function createAuthor($documentNode, $author, $locale) {
+
+		$creator = $documentNode->createElement("creator");
+		$person = $documentNode->createElement("person");
+		$firstName = $documentNode->createElement("firstName", $author->getGivenName($locale));
+		$person->appendChild($firstName);
+		$lastName = $documentNode->createElement("lastName", $author->getFamilyName($locale));
+		$person->appendChild($lastName);
+		$creator->appendChild($person);
+
+		return $creator;
+	}
+
 	function createDataURLs($documentNode, $object, $parent, $isSubmission) {
 
 		$request = Application::getRequest();
@@ -215,9 +228,19 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	function createPublicationYear($documentNode, $object,$parent, $isSubmission) {
+	function getPlugin() {
 
-		$date =  ($isSubmission == true) ? $object->getDatePublished() : $parent->getDatePublished();
+		return $this->_plugin;
+	}
+
+	function setPlugin($plugin) {
+
+		$this->_plugin = $plugin;
+	}
+
+	function createPublicationYear($documentNode, $object, $parent, $isSubmission) {
+
+		$date = ($isSubmission == true) ? $object->getDatePublished() : $parent->getDatePublished();
 		$publicationDate = $documentNode->createElement("publicationDate");
 		$year = $documentNode->createElement("year", substr($date, 0, 4));
 		$publicationDate->appendChild($year);
@@ -233,17 +256,6 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$location = $press->getData('location');
 		$publicationPlace = $documentNode->createElement("publicationPlace", $location);
 		$documentNode->documentElement->appendChild($publicationPlace);
-
-		return $documentNode;
-
-	}
-
-	function createAvailability($documentNode) {
-
-		$availability = $documentNode->createElement("availability");
-		$availabilityType = $documentNode->createElement("availabilityType", "Download");
-		$availability->appendChild($availabilityType);
-		$documentNode->documentElement->appendChild($availability);
 
 		return $documentNode;
 
@@ -265,32 +277,15 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	}
 
-	function createRelationsOfParent($documentNode, $parent) {
+	function createAvailability($documentNode) {
 
-		$request = Application::getRequest();
-		$press = $request->getPress();
-		$relations = $documentNode->createElement("relations");
-		$pubId = $parent->getStoredPubId('doi');
-		if (isset($pubId)) {
+		$availability = $documentNode->createElement("availability");
+		$availabilityType = $documentNode->createElement("availabilityType", "Download");
+		$availability->appendChild($availabilityType);
+		$documentNode->documentElement->appendChild($availability);
 
-			if ($this->getPlugin()->isTestMode($press)) {
-				$pubId = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $pubId);
-			}
-			$relation = $documentNode->createElement("relation");
-			$identifier = $documentNode->createElement("identifier", $pubId);
-			$identifierType = $documentNode->createElement("identifierType", "DOI");
-			$relationType = $documentNode->createElement("relationType", "IsPartOf");
-			$resourceType = $documentNode->createElement("resourceType", "Text");
-			$relation->appendChild($identifier);
-			$relation->appendChild($identifierType);
-			$relation->appendChild($relationType);
-			$relation->appendChild($resourceType);
-			$relations->appendChild($relation);
+		return $documentNode;
 
-			$documentNode->documentElement->appendChild($relations);
-
-			return $documentNode;
-		}
 	}
 
 	function createRelationsOfChildren($documentNode, $object) {
@@ -333,19 +328,33 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	private function createAuthor($documentNode, $author, $locale) {
+	function createRelationsOfParent($documentNode, $parent) {
 
-		$creator = $documentNode->createElement("creator");
-		$person = $documentNode->createElement("person");
-		$firstName = $documentNode->createElement("firstName", $author->getGivenName($locale));
-		$person->appendChild($firstName);
-		$lastName = $documentNode->createElement("lastName", $author->getFamilyName($locale));
-		$person->appendChild($lastName);
-		$creator->appendChild($person);
+		$request = Application::getRequest();
+		$press = $request->getPress();
+		$relations = $documentNode->createElement("relations");
+		$pubId = $parent->getStoredPubId('doi');
+		if (isset($pubId)) {
 
-		return $creator;
+			if ($this->getPlugin()->isTestMode($press)) {
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $pubId);
+			}
+			$relation = $documentNode->createElement("relation");
+			$identifier = $documentNode->createElement("identifier", $pubId);
+			$identifierType = $documentNode->createElement("identifierType", "DOI");
+			$relationType = $documentNode->createElement("relationType", "IsPartOf");
+			$resourceType = $documentNode->createElement("resourceType", "Text");
+			$relation->appendChild($identifier);
+			$relation->appendChild($identifierType);
+			$relation->appendChild($relationType);
+			$relation->appendChild($resourceType);
+			$relations->appendChild($relation);
+
+			$documentNode->documentElement->appendChild($relations);
+
+			return $documentNode;
+		}
 	}
-
 
 	function getContext() {
 
@@ -355,16 +364,6 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 	function setContext($context) {
 
 		$this->_context = $context;
-	}
-
-	function getPlugin() {
-
-		return $this->_plugin;
-	}
-
-	function setPlugin($plugin) {
-
-		$this->_plugin = $plugin;
 	}
 
 	function getXmlSchemaVersion() {

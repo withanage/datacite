@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE locale SYSTEM "../../../../../lib/pkp/dtd/locale.dtd">
 <locale name="en_US" full_name="U.S. English">
 	<message key="plugins.importexport.datacite.displayName">Datacite XML Plugin</message>
-	<message key="plugins.importexport.datacite.description">Import and export books in OMP's datacite XML format.</message>
-	<message key="plugins.importexport.datacite.export">Export</message>
-	<message key="plugins.importexport.datacite.exportSubmissionsSelect">Select monographs to export</message>
+	<message key="plugins.importexport.datacite.description">Deposite submissions in OMP's datacite XML format.</message>
+	<message key="plugins.importexport.datacite.queued">To Deposit</message>
+	<message key="plugins.importexport.datacite.deposited">Deposited</message>
+	<message key="plugins.importexport.datacite.deposit">Deposit</message>
+	<message key="plugins.importexport.datacite.submittedSubmissions">Select monographs to export</message>
 	<message key="plugins.importexport.datacite.results">Results</message>
 	<message key="plugins.importexport.datacite.settings.description">Description</message>
 	<message key="plugins.importexport.datacite.intro"><![CDATA[ If you want to register DOIs with mEDRA, please follow the directions on the <a href="http://www.medra.org/en/guide.htm" target="_blank">mEDRA homepage</a> to receive a username and password. If you do not have your own username and password you'll still be able to export into the mEDRA XML format (Onix for DOI) but you cannot register your DOIs with mEDRA from within OMP. Please note that the password will be saved as plain text, i.e. not encrypted, due to the mEDRA registration service requirements.]]></message>
