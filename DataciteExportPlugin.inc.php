@@ -67,7 +67,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				import('classes.notification.NotificationManager');
 				$notificationManager = new NotificationManager();
 				$message = implode(" ", $result);
-				$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => __($message)));
+				$message = "asdad";
+				$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => $message));
 				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 
 				break;
