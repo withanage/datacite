@@ -66,9 +66,15 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 				import('classes.notification.NotificationManager');
 				$notificationManager = new NotificationManager();
-				$message = implode(" ", $result);
-				$message = "asdad";
-				$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => $message));
+				$message = json_decode(str_replace("\n", "", implode(" ", $result)));
+
+
+					if ($message->errors) {
+						if (!in_array($message->errors->status, DATACITE_API_RESPONSE_OK)) {
+							$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $message->errors->detail));
+						}
+					}
+
 				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 
 				break;
@@ -258,7 +264,6 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 		return 'DataciteExportPlugin';
 	}
-
 
 	function getPluginSettingsPrefix() {
 
