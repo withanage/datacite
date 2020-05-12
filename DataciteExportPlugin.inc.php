@@ -54,15 +54,19 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				));
 				$templateMgr->assign('queuedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
+
 				import('classes.notification.NotificationManager');
 				$notificationManager = new NotificationManager();
 				$notificationManager->createTrivialNotification($request->getUser()->getId());
-
 
 				break;
 
 			case 'export':
 				$result = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
+
+				import('classes.notification.NotificationManager');
+				$notificationManager = new NotificationManager();
+				$notificationManager->createTrivialNotification($request->getUser()->getId());
 
 				$request->redirect(null, 'management', 'importexport', 'plugin' . urldecode('/') . 'DataciteExportPlugin');
 
@@ -272,6 +276,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return $success;
 	}
 
+	function usage($scriptName) {
+
+		fatalError('Not implemented.');
+	}
+
 	function setupGridHandler($hookName, $args) {
 
 		$component = $args[0];
@@ -283,11 +292,6 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		}
 
 		return false;
-	}
-
-	function usage($scriptName) {
-
-		fatalError('Not implemented.');
 	}
 
 }
