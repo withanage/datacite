@@ -4,7 +4,10 @@ import('controllers.list.submissions.SubmissionsListHandler');
 class DataciteSubmittedListHandler extends SubmissionsListHandler {
 
 	public function init( $args = array() ) {
-		$this->_inputName = isset($args['inputName']) ? $args['inputName'] : $this->_inputName;
+		parent::init($args);
+
+		$this->_count = isset($args['count']) ? (int) $args['count'] : $this->_count;
+		$this->_getParams = isset($args['getParams']) ? $args['getParams'] : $this->_getParams;
 	}
 
 	public function getItems() {

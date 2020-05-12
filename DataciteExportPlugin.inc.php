@@ -42,9 +42,6 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					'title' => 'plugins.importexport.datacite.depositedSubmissions',
 					'count' => 20,
 					'lazyLoad' => false,
-					'getParams' => array(
-					'status' => STATUS_PUBLISHED,
-				),
 				));
 				$templateMgr->assign('depositedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 
@@ -57,12 +54,20 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				));
 				$templateMgr->assign('queuedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
+				import('classes.notification.NotificationManager');
+				$notificationManager = new NotificationManager();
+				$notificationManager->createTrivialNotification($request->getUser()->getId());
+
+
 				break;
 
-				case 'export':
-				$this->exportSubmissions(
-					(array)$request->getUserVar('selectedSubmissions')
-				);
+			case 'export':
+				$result = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
+
+				$request->redirect(null, 'management', 'importexport', 'plugin' . urldecode('/') . 'DataciteExportPlugin');
+
+				break;
+
 			default:
 				$dispatcher = $request->getDispatcher();
 				$dispatcher->handle404();
@@ -103,6 +108,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$request = Application::getRequest();
 		$press = $request->getPress();
 		$fileManager = new FileManager();
+		$result = array();
 		foreach ($submissionIds as $submissionId) {
 			$deployment = new DataciteExportDeployment($request, $this);
 			$submission = $submissionDao->getById($submissionId, $request->getContext()->getId());
@@ -114,7 +120,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId, $press, '.xml');
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
-				$result = $this->depositXML($submission, $press, $exportFileName, true);
+				$result[] = $this->depositXML($submission, $press, $exportFileName, true);
 				$fileManager->deleteByPath($exportFileName);
 
 			}
@@ -130,13 +136,15 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId . 'c' . $chapter->getId(), $press, '.xml');
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
-					$result = $this->depositXML($chapter, $press, $exportFileName, false);
+					$result[] = $this->depositXML($chapter, $press, $exportFileName, false);
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}
 
 
 		}
+
+		return $result;
 	}
 
 	function depositXML($object, $press, $filename, $isSubmission) {
@@ -216,7 +224,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 		}
 
-		return $result;
+		return $response;
 	}
 
 	function isTestMode($press) {
@@ -265,12 +273,15 @@ class DataciteExportPlugin extends ImportExportPlugin {
 	}
 
 	function setupGridHandler($hookName, $args) {
+
 		$component = $args[0];
 		if ($component == 'plugins.generic.datacite.controllers.grid.DataciteGridHandler') {
 			import($component);
 			DataciteGridHandler::setPlugin($this);
+
 			return true;
 		}
+
 		return false;
 	}
 

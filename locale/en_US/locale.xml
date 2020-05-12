@@ -2,8 +2,10 @@
 <locale name="en_US" full_name="U.S. English">
 	<message key="plugins.importexport.datacite.displayName">Datacite XML Plugin</message>
 	<message key="plugins.importexport.datacite.description">Deposite submissions in OMP's datacite XML format.</message>
+	<message key="plugins.importexport.datacite.error">Error</message>
 	<message key="plugins.importexport.datacite.queued">To Deposit</message>
 	<message key="plugins.importexport.datacite.deposited">Deposited</message>
+	<message key="plugins.importexport.datacite.depositedSubmissions">Deposited submissions</message>
 	<message key="plugins.importexport.datacite.deposit">Deposit</message>
 	<message key="plugins.importexport.datacite.submittedSubmissions">Select monographs to export</message>
 	<message key="plugins.importexport.datacite.results">Results</message>

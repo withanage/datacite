@@ -54,7 +54,7 @@
 				$('#queuedXmlForm').pkpHandler('$.pkp.controllers.form.FormHandler');
 				{rdelim});
 		</script>
-		<form id="queuedXmlForm" class="pkp_form" action="{plugin_url path=""}" method="post">
+		<form id="queuedXmlForm" class="pkp_form" action="{plugin_url path="export"}" method="post">
 			{csrf}
 			{fbvFormArea id="queuedForm"}
 			{fbvFormSection}
@@ -72,9 +72,9 @@
 	</div>
 	<div id="deposited-tab">
 
-		<div id="export-submissions-list-handler-{$uuid}">
+		<div id="deposited-submissions-list-handler-{$uuid}">
 			<script type="text/javascript">
-				pkp.registry.init('export-submissions-list-handler-{$uuid}', 'SubmissionsListPanel', {$depositedSubmissionsListData});
+				pkp.registry.init('deposited-submissions-list-handler-{$uuid}', 'SubmissionsListPanel', {$depositedSubmissionsListData});
 			</script>
 		</div>
 
