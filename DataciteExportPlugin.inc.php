@@ -81,8 +81,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					}
 					$success = 0;
 				}
-
-				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'), array('success' => $success, 'notification' => $notification));
+				$notificationManager = new NotificationManager();
+				$notificationType = ($success == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
+				$message =  ($success == 1)  ? $notification : "Successful";
+				$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
+				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 
 				break;
 
