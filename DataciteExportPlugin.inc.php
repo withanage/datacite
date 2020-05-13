@@ -8,17 +8,7 @@ import('lib.pkp.classes.plugins.ImportExportPlugin');
 import('plugins.importexport.datacite.DataciteExportDeployment');
 define('DATACITE_API_RESPONSE_OK', array(200, 201, 302));
 define('DATACITE_API_TESTPREFIX', '10.17889');
-define('DATACITE_EXPORT_FILE_XML', 0x01);
-define('DATACITE_EXPORT_FILE_TAR', 0x02);
-define('EXPORT_STATUS_ANY', '');
-define('EXPORT_STATUS_NOT_DEPOSITED', 'notDeposited');
-define('EXPORT_STATUS_MARKEDREGISTERED', 'markedRegistered');
-define('EXPORT_STATUS_REGISTERED', 'registered');
-define('EXPORT_ACTION_EXPORT', 'export');
-define('EXPORT_ACTION_MARKREGISTERED', 'markRegistered');
-define('EXPORT_ACTION_DEPOSIT', 'deposit');
-define('EXPORT_CONFIG_ERROR_SETTINGS', 0x02);
-define('DOI_EXPORT_REGISTERED_DOI', 'registeredDoi');
+
 
 class DataciteExportPlugin extends ImportExportPlugin {
 
@@ -27,21 +17,24 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		parent::__construct();
 	}
 
-	public static function logFilePath() {
-		return Config::getVar('files', 'files_dir') . '/datacite.log';
+	public function logInfo($message) {
+
+		if ($this->getSetting($this->currentContextId, 'logLevel') === 'ERROR') {
+			return;
+		} else {
+			self::writeLog($message, 'INFO');
+		}
 	}
 
 	private static function writeLog($message, $level) {
+
 		$fineStamp = date('Y-m-d H:i:s') . substr(microtime(), 1, 4);
 		error_log("$fineStamp $level $message\n", 3, self::logFilePath());
 	}
-	public function logInfo($message) {
-		if ($this->getSetting($this->currentContextId, 'logLevel') === 'ERROR') {
-			return;
-		}
-		else {
-			self::writeLog($message, 'INFO');
-		}
+
+	public static function logFilePath() {
+
+		return Config::getVar('files', 'files_dir') . '/datacite.log';
 	}
 
 	function display($args, $request) {
@@ -179,7 +172,6 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 	function depositXML($object, $press, $filename, $isSubmission) {
 
-		$this->logInfo("ssss");
 		$username = $this->getSetting($press->getId(), 'username');
 		$password = $this->getSetting($press->getId(), 'password');
 		$api = $this->getSetting($press->getId(), 'api');

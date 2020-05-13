@@ -31,5 +31,4 @@ class DataciteQueuedListHandler extends SelectSubmissionsListHandler {
 	}
 
 
-
 }
