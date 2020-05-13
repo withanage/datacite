@@ -64,7 +64,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 				$success = 1;
 				$notification = "";
-				foreach ($notifications as $submissionId => $error) {
+				foreach ($notifications as $error) {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
