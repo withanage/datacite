@@ -179,7 +179,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 	function depositXML($object, $press, $filename, $isSubmission) {
 
-		$request = Application::getRequest();
+		$this->logInfo("ssss");
 		$username = $this->getSetting($press->getId(), 'username');
 		$password = $this->getSetting($press->getId(), 'password');
 		$api = $this->getSetting($press->getId(), 'api');
@@ -214,7 +214,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
 		$result = true;
 		$response = curl_exec($curlCh);
-		$this->logInfo($response);
+
 		if ($response === false) {
 			$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: No response from server."));
 		} else {
