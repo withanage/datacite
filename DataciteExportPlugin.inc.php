@@ -59,7 +59,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 			case 'export':
 				$notifications = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
-				var_dump($notifications);
+
 				import('classes.notification.NotificationManager');
 
 				$success = 1;
