@@ -1,7 +1,8 @@
 <?php
-import('controllers.list.submissions.SubmissionsListHandler');
 
-class DataciteSubmittedListHandler extends SubmissionsListHandler {
+import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
+
+class DataciteSubmittedListHandler extends SelectSubmissionsListHandler {
 
 	public function init( $args = array() ) {
 		parent::init($args);

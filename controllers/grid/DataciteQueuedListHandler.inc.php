@@ -16,7 +16,9 @@ class DataciteQueuedListHandler extends SelectSubmissionsListHandler {
 				'request' => $request,
 			);
 			foreach ($submissions as $submission) {
-				$items[] = $submissionService->getBackendListProperties($submission, $propertyArgs);
+				if (!$submission->getData('pub-id::publisher-id')) {
+					$items[] = $submissionService->getBackendListProperties($submission, $propertyArgs);
+				}
 			}
 		}
 
@@ -26,6 +28,21 @@ class DataciteQueuedListHandler extends SelectSubmissionsListHandler {
 	public function init($args = array()) {
 
 		$this->_inputName = isset($args['inputName']) ? $args['inputName'] : $this->_inputName;
+	}
+
+	public function getItemsMax() {
+		$request = Application::getRequest();
+		$context = $request->getContext();
+
+		$submissionService = ServicesContainer::instance()->get('submission');
+		$submissions = $submissionService->getSubmissions($context->getId(), $this->_getItemsParams());
+		$count = 0;
+		foreach ($submissions as $submission) {
+			if (!$submission->getData('pub-id::publisher-id')) {
+				$count+=1;
+			}
+		}
+		return $count;
 	}
 
 }

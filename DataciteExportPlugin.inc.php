@@ -55,27 +55,35 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$templateMgr->assign('queuedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 
-				import('classes.notification.NotificationManager');
-				$notificationManager = new NotificationManager();
-				$notificationManager->createTrivialNotification($request->getUser()->getId());
+				$userVars = $request->getUserVars();
+				if ($userVars) {
+
+					$notificationManager = new NotificationManager();
+					$notificationType = ($userVars["success"] == 0) ? NOTIFICATION_TYPE_ERROR : NOTIFICATION_TYPE_SUCCESS;
+					$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => urldecode($userVars['notification'])));
+				}
 
 				break;
 
 			case 'export':
-				$result = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
+				$notifications = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
 
 				import('classes.notification.NotificationManager');
-				$notificationManager = new NotificationManager();
-				$message = json_decode(str_replace("\n", "", implode(" ", $result)));
 
+				$success = 1;
+				$notification = "";
+				foreach ($notifications as $submission => $error) {
 
-					if ($message->errors) {
-						if (!in_array($message->errors->status, DATACITE_API_RESPONSE_OK)) {
-							$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $message->errors->detail));
-						}
+					$result = json_decode(str_replace("\n", "", $error), true);
+					if ($result["errors"]) {
+
+						$notification .= $result["errors"]["detail"];
 					}
 
-				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
+					$success = 0;
+				}
+
+				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'), array('success' => $success, 'notification' => $notification));
 
 				break;
 
@@ -131,7 +139,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId, $press, '.xml');
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
-				$result[] = $this->depositXML($submission, $press, $exportFileName, true);
+				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
 				$fileManager->deleteByPath($exportFileName);
 
 			}
@@ -147,7 +155,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId . 'c' . $chapter->getId(), $press, '.xml');
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
-					$result[] = $this->depositXML($chapter, $press, $exportFileName, false);
+					$result[$submissionId][$chapter] = $this->depositXML($chapter, $press, $exportFileName, false);
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}

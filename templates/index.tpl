@@ -71,12 +71,26 @@
 		</form>
 	</div>
 	<div id="deposited-tab">
+		<script type="text/javascript">
+			$(function () {ldelim}
 
-		<div id="deposited-submissions-list-handler-{$uuid}">
-			<script type="text/javascript">
-				pkp.registry.init('deposited-submissions-list-handler-{$uuid}', 'SubmissionsListPanel', {$depositedSubmissionsListData});
-			</script>
-		</div>
+				$('#depositedXmlForm').pkpHandler('$.pkp.controllers.form.FormHandler');
+				{rdelim});
+		</script>
+		<form id="depositedXmlForm" class="pkp_form" action="{plugin_url path="export"}" method="post">
+			{csrf}
+			{fbvFormArea id="depositedForm"}
+			{fbvFormSection}
+			{assign var="uuid" value=""|uniqid|escape}
+				<div id="deposited-submissions-list-handler-{$uuid}">
+					<script type="text/javascript">
+						pkp.registry.init('deposited-submissions-list-handler-{$uuid}', 'SelectSubmissionsListPanel', {$depositedSubmissionsListData});
+					</script>
+				</div>
+			{/fbvFormSection}
+			{fbvFormButtons submitText="plugins.importexport.datacite.redeposit" hideCancel="true"}
+
+			{/fbvFormArea}
 
 	</div>
 </div>
