@@ -55,14 +55,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$templateMgr->assign('queuedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 
-				$userVars = $request->getUserVars();
-				if ($userVars) {
 
-					$notificationManager = new NotificationManager();
-					$notificationType = ($userVars["success"] == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-					$message =  ($userVars["success"] == 1)  ? $userVars['notification']:"Success";
-					$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType,$message);
-				}
 
 				break;
 
@@ -82,7 +75,14 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$success = 0;
 				}
 
-				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'), array('success' => $success, 'notification' => $notification));
+
+					$notificationManager = new NotificationManager();
+					$notificationType = ($success== 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
+					$message =  ($success== 1)  ? $notification:"Success";
+					$notificationManager->createTrivialNotification($request->getUser()->getId(), array('contents' => $notificationType,$message));
+
+
+				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 
 				break;
 
