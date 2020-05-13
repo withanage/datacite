@@ -79,7 +79,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					if ($result["errors"]) {
 						$notification .= str_replace('"', '', $result["errors"]["status"]);
 					}
-					$success = 0;
+					$success = 1;
 				}
 
 				$notificationManager = new NotificationManager();
