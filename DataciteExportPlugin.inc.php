@@ -55,32 +55,28 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$templateMgr->assign('queuedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 
-
-
 				break;
 
 			case 'export':
 				$notifications = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
-
+				var_dump($notifications);
 				import('classes.notification.NotificationManager');
 
 				$success = 1;
-				$notification = "Response:";
-				foreach ($notifications as $submission => $error) {
+				$notification = "";
+				foreach ($notifications as $submissionId => $error) {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
-						$notification .= str_replace('"','',$result["errors"]["detail"]);
+						$notification .= str_replace('"', '', $result["errors"]["detail"]);
 					}
 					$success = 0;
 				}
 
-
-					$notificationManager = new NotificationManager();
-					$notificationType = ($success== 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-					$message =  ($success== 1)  ? "Success":$notification;
-					$notificationManager->createTrivialNotification($request->getUser()->getId(),$notificationType, array('contents' => $message));
-
+				$notificationManager = new NotificationManager();
+				$notificationType = ($success == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
+				$message = ($success == 1) ? "Success" : $notification;
+				$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
 
 				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 
