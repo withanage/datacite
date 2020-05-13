@@ -60,8 +60,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 					$notificationManager = new NotificationManager();
 					$notificationType = ($userVars["success"] == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-					$message =  ($userVars["success"] == 1)  ? $userVars['notification'] : "Successful";
-					$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
+					$message =  ($userVars["success"] == 1)  ? $userVars['notification']:"Success";
+					$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType,$message);
 				}
 
 				break;
@@ -77,15 +77,12 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
-						$notification .= str_replace(array('"',"'",),'',$result["errors"]["detail"]);
+						$notification .= str_replace('"','',$result["errors"]["detail"]);
 					}
 					$success = 0;
 				}
-				$notificationManager = new NotificationManager();
-				$notificationType = ($success == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-				$message =  ($success == 1)  ? $notification : "Successful";
-				$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
-				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
+
+				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'), array('success' => $success, 'notification' => $notification));
 
 				break;
 
