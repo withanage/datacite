@@ -27,6 +27,23 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		parent::__construct();
 	}
 
+	public static function logFilePath() {
+		return Config::getVar('files', 'files_dir') . '/datacite.log';
+	}
+
+	private static function writeLog($message, $level) {
+		$fineStamp = date('Y-m-d H:i:s') . substr(microtime(), 1, 4);
+		error_log("$fineStamp $level $message\n", 3, self::logFilePath());
+	}
+	public function logInfo($message) {
+		if ($this->getSetting($this->currentContextId, 'logLevel') === 'ERROR') {
+			return;
+		}
+		else {
+			self::writeLog($message, 'INFO');
+		}
+	}
+
 	function display($args, $request) {
 
 		$templateMgr = TemplateManager::getManager($request);
@@ -197,6 +214,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
 		$result = true;
 		$response = curl_exec($curlCh);
+		$this->logInfo($response);
 		if ($response === false) {
 			$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: No response from server."));
 		} else {
