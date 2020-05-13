@@ -60,7 +60,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 					$notificationManager = new NotificationManager();
 					$notificationType = ($userVars["success"] == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-					$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $userVars['notification']));
+					$message =  ($userVars["success"] == 1)  ? $userVars['notification'] : "Successful";
+					$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
 				}
 
 				break;
@@ -71,15 +72,13 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				import('classes.notification.NotificationManager');
 
 				$success = 1;
-				$notification = "Notification:";
+				$notification = "";
 				foreach ($notifications as $submission => $error) {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
-
 						$notification .= str_replace('"','',$result["errors"]["detail"]);
 					}
-
 					$success = 0;
 				}
 
