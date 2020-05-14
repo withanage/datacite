@@ -45,9 +45,7 @@ class DataciteSubmittedListHandler extends SelectSubmissionsListHandler {
 	public function init($args = array()) {
 
 		parent::init($args);
-
-		$this->_count = isset($args['count']) ? (int)$args['count'] : $this->_count;
-		$this->_getParams = isset($args['getParams']) ? $args['getParams'] : $this->_getParams;
+		$this->_inputName = isset($args['inputName']) ? $args['inputName'] : $this->_inputName;
 	}
 
 }

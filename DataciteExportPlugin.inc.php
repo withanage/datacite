@@ -65,14 +65,15 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 				$success = 1;
 				$notification = "";
-				foreach ($notifications as $error) {
+				foreach ($notifications as $submission=>$error) {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
 						$detail = $result["errors"]["detail"];
+						$status = $result["errors"]["stauts"];
 						$notification .= str_replace('"', '', $detail);
 						$success = 0;
-						self::writeLog($detail, 'ERROR');
+						self::writeLog($submission." ::  ".$detail, 'ERROR');
 					}
 
 				}
@@ -139,7 +140,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
 				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
-				$fileManager->deleteByPath($exportFileName);
+				//$fileManager->deleteByPath($exportFileName);
 
 			}
 

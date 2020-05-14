@@ -23,6 +23,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	var $_plugin;
 
+	private $givenName;
+
 	function __construct($request, $plugin) {
 
 		$context = $request->getContext();
@@ -184,11 +186,22 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		$creator = $documentNode->createElement("creator");
 		$person = $documentNode->createElement("person");
-		$firstName = $documentNode->createElement("firstName", $author->getGivenName($locale));
+		$familyName = $author->getFamilyName($locale);
+		$givenName = $author->getGivenName($locale);
+		if ($familyName!='') {
+			$lastName = $documentNode->createElement("lastName", $familyName);
+			$firstName = $documentNode->createElement("firstName", $givenName);
 		$person->appendChild($firstName);
-		$lastName = $documentNode->createElement("lastName", $author->getFamilyName($locale));
 		$person->appendChild($lastName);
-		$creator->appendChild($person);
+			$creator->appendChild($person);
+		}
+		else {
+			$institution = $documentNode->createElement("institution");
+			$institutionName = $documentNode->createElement("institutionName", $givenName);
+			$institution->appendChild($institutionName);
+			$creator->appendChild($institution);
+			}
+
 
 		return $creator;
 	}
@@ -241,7 +254,14 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 	function createPublicationYear($documentNode, $object, $parent, $isSubmission) {
 
 		$date = $object->getDatePublished();
-		if ($date == null) $date = $object->getDateSubmitted();
+		if ($date == null)  {
+			if($isSubmission== true) {
+				$date = $object->getDateSubmitted();
+			}
+			else {
+					$date =  ($parent->getDatePublished())? $parent->getDatePublished(): $parent->getDateSubmitted();
+			}
+		}
 
 		$publicationDate = $documentNode->createElement("publicationDate");
 		$year = $documentNode->createElement("year", substr($date, 0, 4));
