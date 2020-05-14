@@ -77,7 +77,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
-						$notification .= str_replace('"', '', $result["errors"]["status"]);
+						$notification .= str_replace('"', '', $result["errors"]["detail"]);
 						$success = 0;
 					}
 
