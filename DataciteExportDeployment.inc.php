@@ -116,14 +116,17 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		return $documentNode;
 	}
-
+	function xmlEscape($value) {
+		return XMLNode::xmlentities($value, ENT_NOQUOTES);
+	}
 	function createTitles($documentNode, $object, $parent, $isSubmission) {
 
 		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
 		$titles = $documentNode->createElement("titles");
 		$language = $documentNode->createElement("language", substr($locale, 0, 2));
 		$title = $documentNode->createElement("title");
-		$titleName = $documentNode->createElement("titleName", $object->getLocalizedTitle($locale));
+		$localizedTitle = $object->getLocalizedTitle($locale);
+		$titleName = $documentNode->createElement("titleName", $this->xmlEscape($localizedTitle));
 		$title->appendChild($titleName);
 		$title->appendChild($language);
 		$titles->appendChild($title);
@@ -141,7 +144,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 			$otherTitle = $documentNode->createElement("otherTitle");
 			$language = $documentNode->createElement("language", substr($locale, 0, 2));
-			$titleName = $documentNode->createElement("titleName", $localizedSubtitle);
+			$titleName = $documentNode->createElement("titleName", $this->xmlEscape($localizedSubtitle));
 			$titleType = $documentNode->createElement("titleType", "Subtitle");
 
 			$otherTitle->appendChild($language);
@@ -197,7 +200,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		}
 		else {
 			$institution = $documentNode->createElement("institution");
-			$institutionName = $documentNode->createElement("institutionName", $givenName);
+			$institutionName = $documentNode->createElement("institutionName", $this->xmlEscape($givenName));
 			$institution->appendChild($institutionName);
 			$creator->appendChild($institution);
 			}

@@ -42,8 +42,9 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				import('plugins.importexport.datacite.controllers.grid.DataciteSubmittedListHandler');
 				$exportSubmissionsListHandler = new DataciteSubmittedListHandler(array(
 					'title' => 'plugins.importexport.datacite.depositedSubmissions',
+					'inputName' => 'selectedSubmissions[]',
 					'count' => 20,
-					'lazyLoad' => false,
+					'lazyLoad' => true,
 				));
 				$templateMgr->assign('depositedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 
@@ -140,7 +141,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
 				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
-				$fileManager->deleteByPath($exportFileName);
+				//$fileManager->deleteByPath($exportFileName);
 
 			}
 
