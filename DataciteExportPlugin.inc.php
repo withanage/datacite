@@ -71,15 +71,16 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$notifications = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
 				import('classes.notification.NotificationManager');
 
-				$success = 0;
+				$success = 1;
 				$notification = "";
 				foreach ($notifications as $error) {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
 						$notification .= str_replace('"', '', $result["errors"]["status"]);
+						$success = 0;
 					}
-					$success = 1;
+
 				}
 
 				$notificationManager = new NotificationManager();
