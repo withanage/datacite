@@ -17,14 +17,6 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		parent::__construct();
 	}
 
-	public function logInfo($message) {
-
-		if ($this->getSetting($this->currentContextId, 'logLevel') === 'ERROR') {
-			return;
-		} else {
-			self::writeLog($message, 'INFO');
-		}
-	}
 
 	private static function writeLog($message, $level) {
 
@@ -34,7 +26,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 	public static function logFilePath() {
 
-		return Config::getVar('files', 'files_dir') . '/datacite.log';
+		return Config::getVar('files', 'files_dir') . '/DATACITE_ERROR.log';
 	}
 
 	function display($args, $request) {
@@ -77,8 +69,10 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 					$result = json_decode(str_replace("\n", "", $error), true);
 					if ($result["errors"]) {
-						$notification .= str_replace('"', '', $result["errors"]["detail"]);
+						$detail = $result["errors"]["detail"];
+						$notification .= str_replace('"', '', $detail);
 						$success = 0;
+						self::writeLog($detail, 'ERROR');
 					}
 
 				}
@@ -145,7 +139,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
 				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
-				//$fileManager->deleteByPath($exportFileName);
+				$fileManager->deleteByPath($exportFileName);
 
 			}
 
