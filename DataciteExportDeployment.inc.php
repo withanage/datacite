@@ -240,8 +240,9 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	function createPublicationYear($documentNode, $object, $parent, $isSubmission) {
 
-		$date = ($isSubmission == true) ? $object->getDatePublished() : $parent->getDatePublished();
-		$date = ($date == null) ? $object->getDateStatusModified() : $parent->getLastModified();
+		$date = $object->getDatePublished();
+		if ($date == null) $date = $object->getDateSubmitted();
+
 		$publicationDate = $documentNode->createElement("publicationDate");
 		$year = $documentNode->createElement("year", substr($date, 0, 4));
 		$publicationDate->appendChild($year);
