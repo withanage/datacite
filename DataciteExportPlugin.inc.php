@@ -49,12 +49,14 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		parent::display($args, $request);
 
 		$templateMgr->assign('plugin', $this->getName());
-		$this->getSettings($request, $templateMgr);
+
 		switch (array_shift($args)) {
 			case 'settings':
+				$this->getSettings($request, $templateMgr);
 				$this->updateSettings($request);
-				//$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
+
 			case '':
+				$this->getSettings($request, $templateMgr);
 				$this->depositHandler($request, $templateMgr);
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 				break;
