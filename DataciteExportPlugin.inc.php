@@ -8,6 +8,8 @@ import('lib.pkp.classes.plugins.ImportExportPlugin');
 import('plugins.importexport.datacite.DataciteExportDeployment');
 define('DATACITE_API_RESPONSE_OK', array(200, 201, 302));
 define('DATACITE_API_TESTPREFIX', '10.17889');
+define('DATACITE_API_TESTREGISTRY', 'https://handle.test.datacite.org');
+define('DATACITE_API_REGISTRY', 'https://datacite.org');
 
 
 class DataciteExportPlugin extends ImportExportPlugin {
@@ -29,60 +31,40 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return Config::getVar('files', 'files_dir') . '/DATACITE_ERROR.log';
 	}
 
+	function getRegistry($press){
+		$registry = DATACITE_API_REGISTRY;
+		if ($this->isTestMode($press)) {
+			$registry = DATACITE_API_TESTREGISTRY;
+		}
+		return $registry;
+	}
+
 	function display($args, $request) {
 
 		$templateMgr = TemplateManager::getManager($request);
 		parent::display($args, $request);
 		$templateMgr->assign('plugin', $this);
+		$templateMgr->assign('plugin', $this->getName());
 		$this->getSettings($request, $templateMgr);
+
 		switch (array_shift($args)) {
 			case 'settings':
 				$this->updateSettings($request);
 			case '':
-				import('plugins.importexport.datacite.controllers.grid.DataciteSubmittedListHandler');
-				$exportSubmissionsListHandler = new DataciteSubmittedListHandler(array(
-					'title' => 'plugins.importexport.datacite.depositedSubmissions',
-					'inputName' => 'selectedSubmissions[]',
-					'count' => 20,
-					'lazyLoad' => true,
-				));
-				$templateMgr->assign('depositedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
 
-				import('plugins.importexport.datacite.controllers.grid.DataciteQueuedListHandler');
-				$exportSubmissionsListHandler = new DataciteQueuedListHandler(array(
-					'title' => 'plugins.importexport.datacite.queuedSubmissions',
-					'count' => 20,
-					'inputName' => 'selectedSubmissions[]',
-					'lazyLoad' => true,
-				));
-				$templateMgr->assign('queuedSubmissionsListData', json_encode($exportSubmissionsListHandler->getConfig()));
+				$this->depositHandler($request, $templateMgr);
+				$this->depositedHandler($request, $templateMgr);
+
+
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 
 				break;
 
 			case 'export':
-				$notifications = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
 				import('classes.notification.NotificationManager');
+				$responses = $this->exportSubmissions((array)$request->getUserVar('selectedSubmissions'));
 
-				$success = 1;
-				$notification = "";
-				foreach ($notifications as $submission=>$error) {
-
-					$result = json_decode(str_replace("\n", "", $error), true);
-					if ($result["errors"]) {
-						$detail = $result["errors"]["detail"];
-						$status = $result["errors"]["stauts"];
-						$notification .= str_replace('"', '', $detail);
-						$success = 0;
-						self::writeLog($submission." ::  ".$detail, 'ERROR');
-					}
-
-				}
-
-				$notificationManager = new NotificationManager();
-				$notificationType = ($success == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-				$message = ($success == 1) ? "Success" : $notification;
-				$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
+				$this->createNotifications($request, $responses);
 
 				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 
@@ -92,6 +74,12 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$dispatcher = $request->getDispatcher();
 				$dispatcher->handle404();
 		}
+	}
+	function setupGridHandler($hookName, $args) {
+		import('plugins.generic.customLocale.controllers.grid.DataciteSubmittedListHandler');
+		DataciteSubmittedListHandler::setPlugin($this);
+		return true;
+
 	}
 
 	function getSettings($request, TemplateManager $templateMgr) {
@@ -141,7 +129,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
 				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
-				//$fileManager->deleteByPath($exportFileName);
+				$fileManager->deleteByPath($exportFileName);
 
 			}
 
@@ -156,7 +144,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId . 'c' . $chapter->getId(), $press, '.xml');
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
-					$result[$submissionId][$chapter] = $this->depositXML($chapter, $press, $exportFileName, false);
+					$response = $this->depositXML($chapter, $press, $exportFileName, false);
+					$result[$submissionId][$chapter->getId()] = ($response!="") ? $response : 'ok';
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}
@@ -280,6 +269,10 @@ class DataciteExportPlugin extends ImportExportPlugin {
 	}
 
 	function register($category, $path, $mainContextId = null) {
+		HookRegistry::register('PKPLocale::registerLocaleFile', array(&$this, 'addCustomLocale'));
+		HookRegistry::register('LoadComponentHandler', array($this, 'setupGridHandler'));
+		HookRegistry::register('Templates::Management::Settings::website', array($this, 'callbackShowWebsiteSettingsTabs'));
+		HookRegistry::register('LoadHandler', array($this, 'handleLoadRequest'));
 
 		$success = parent::register($category, $path, $mainContextId);
 		if (!Config::getVar('general', 'installed') || defined('RUNNING_UPGRADE')) return $success;
@@ -296,17 +289,84 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		fatalError('Not implemented.');
 	}
 
-	function setupGridHandler($hookName, $args) {
 
-		$component = $args[0];
-		if ($component == 'plugins.generic.datacite.controllers.grid.DataciteGridHandler') {
-			import($component);
-			DataciteGridHandler::setPlugin($this);
+	private function depositedHandler($request, TemplateManager $templateMgr) {
 
-			return true;
+		$context = $request->getContext();
+		$press = $request->getPress();
+		$submissionService = ServicesContainer::instance()->get('submission');
+		$submissions = $submissionService->getSubmissions($context->getId());
+		$items = [];
+		$locale = AppLocale::getLocale();
+		foreach ($submissions as $submission) {
+			$publisherID = $submission->getData('pub-id::publisher-id');
+			if ($publisherID) {
+				$items[] = array(
+					'id' => $submission->getId(),
+					'title' => $submission->getLocalizedTitle($locale),
+					'authors' => $submission->getAuthorString($locale),
+					'pubId' => $publisherID,
+					'registry' => $this->getRegistry($press)
+				);
+			}
 		}
 
-		return false;
+		$templateMgr->assign('items', $items);
+		$templateMgr->assign('itemsSize', sizeof($items));
+
 	}
+
+	private function depositHandler($request, TemplateManager $templateMgr) {
+
+		$context = $request->getContext();
+		$press = $request->getPress();
+		$submissionService = ServicesContainer::instance()->get('submission');
+		$submissions = $submissionService->getSubmissions($context->getId());
+		$items = [];
+		$locale = AppLocale::getLocale();
+		foreach ($submissions as $submission) {
+			$doi = $submission->getData('pub-id::doi');
+			$publisherID = $submission->getData('pub-id::publisher-id');
+			if ($doi and !$publisherID) {
+				$items[] = array(
+					'id' => $submission->getId(),
+					'title' => $submission->getLocalizedTitle($locale),
+					'authors' => $submission->getAuthorString($locale),
+					'pubId' => $doi,
+					'registry' => $this->getRegistry($press)
+				);
+			}
+		}
+
+		$templateMgr->assign('itemsDeposit', $items);
+		$templateMgr->assign('itemsSizeDeposit', sizeof($items));
+
+	}
+
+
+
+	private function createNotifications($request, array $responses) {
+
+		$success = 1;
+		$notification = "";
+		foreach ($responses as $submission => $error) {
+
+			$result = json_decode(str_replace("\n", "", $error), true);
+			if ($result["errors"]) {
+				$detail = $result["errors"]["detail"];
+				$status = $result["errors"]["stauts"];
+				$notification .= str_replace('"', '', $detail);
+				$success = 0;
+				self::writeLog($submission . " ::  " . $detail, 'ERROR');
+			}
+
+		}
+
+		$notificationManager = new NotificationManager();
+		$notificationType = ($success == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
+		$message = ($success == 1) ? "Success" : $notification;
+		$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
+	}
+
 
 }

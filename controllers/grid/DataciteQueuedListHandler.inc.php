@@ -16,10 +16,8 @@ class DataciteQueuedListHandler extends SelectSubmissionsListHandler {
 				'request' => $request,
 			);
 			foreach ($submissions as $submission) {
-				if (!$submission->getData('pub-id::publisher-id')) {
 					$items[] = $submissionService->getBackendListProperties($submission, $propertyArgs);
-				}
-			}
+					}
 		}
 
 		return $items;
