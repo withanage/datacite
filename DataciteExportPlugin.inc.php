@@ -129,7 +129,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
 				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
-				//$fileManager->deleteByPath($exportFileName);
+				$fileManager->deleteByPath($exportFileName);
 
 			}
 
