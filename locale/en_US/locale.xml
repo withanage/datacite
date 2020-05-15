@@ -13,6 +13,7 @@
 	<message key="plugins.importexport.datacite.settings.description">Description</message>
 	<message key="plugins.importexport.datacite.intro"><![CDATA[ If you want to register DOIs with mEDRA, please follow the directions on the <a href="http://www.medra.org/en/guide.htm" target="_blank">mEDRA homepage</a> to receive a username and password. If you do not have your own username and password you'll still be able to export into the mEDRA XML format (Onix for DOI) but you cannot register your DOIs with mEDRA from within OMP. Please note that the password will be saved as plain text, i.e. not encrypted, due to the mEDRA registration service requirements.]]></message>
 	<message key="plugins.importexport.datacite.settings">Settings</message>
+	<message key="plugins.importexport.datacite.settings.form.testUrl">Test Url</message>
 	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
 	<message key="plugins.importexport.datacite.settings.form.password.description"></message>
 	<message key="plugins.importexport.datacite.settings.form.url">Datacite URL</message>
@@ -20,6 +21,11 @@
 	<message key="plugins.importexport.datacite.settings.form.usernameRequired">Please enter the username (symbol) you got from DataCite. The username may not contain colons.</message>
 	<message key="plugins.importexport.datacite.settings.form.automaticRegistration.description">OMP will deposit DOIs automatically to DataCite. Please note that this may take a short amount of time after publication to process (e.g. depending on your cronjob configuration). You can check for all unregistered DOIs.</message>
 	<message key="plugins.importexport.datacite.settings.form.testMode.description">Use the DataCite test prefix for DOI registration. Please do not forget to remove this option for the production.</message>
+	<message key="plugins.importexport.datacite.settings.form.testDescription">Test Server settings </message>
+	<message key="plugins.importexport.datacite.settings.form.testIntro">You can set the datacited test server here e.g. https://labs.da-ra.de/dara/study/importXML?registration=true </message>
+	<message key="plugins.importexport.datacite.settings.form.testPrefix">Test Prfeix</message>
+	<message key="plugins.importexport.datacite.settings.form.testRegistry"> Test registry</message>
+	<message key="plugins.importexport.datacite.settings.form.testUrl">Test URL</message>
 	<message key="plugins.importexport.datacite.senderTask.name">DataCite automatic registration task</message>
 	<message key="plugins.importexport.datacite.cliUsage"><![CDATA[Usage: {$scriptName} {$pluginName} export [outputFileName] [journal_path] {issues|articles|galleys} objectId1 [objectId2] ... {$scriptName} {$pluginName} register [journal_path] {issues|articles|galleys} objectId1 [objectId2] ...]]></message>
 </locale>

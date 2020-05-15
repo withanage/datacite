@@ -11,7 +11,7 @@
 </script>
 <div id="importExportTabs" class="pkp_controllers_tab">
     <ul>
-        <li><a href="#deposit-tab">{translate key="plugins.importexport.datacite.queued"}</a></li>
+        <li><a href="#queue-tab">{translate key="plugins.importexport.datacite.queued"}</a></li>
         <li><a href="#deposited-tab">{translate key="plugins.importexport.datacite.deposited"}</a></li>
         <li><a href="#settings-tab">{translate key="plugins.importexport.datacite.settings"}</a></li>
     </ul>
@@ -40,28 +40,32 @@
                 <span class="instruct">{translate key="plugins.importexport.datacite.settings.form.password.description"}</span>
                 <br/>
             {/fbvFormSection}
+                <hr>
             {fbvFormSection list="true"}
             {fbvElement type="checkbox" id="testMode" label="plugins.importexport.datacite.settings.form.testMode.description" checked=$testMode|compare:true}
             {/fbvFormSection}
+            {fbvElement type="text" id="testRegistry" value=$testRegistry label="plugins.importexport.datacite.settings.form.testRegistry" maxlength="200" size=$fbvStyles.size.MEDIUM}
+            {fbvElement type="text" id="testPrefix" value=$testPrefix label="plugins.importexport.datacite.settings.form.testPrefix" maxlength="10" size=$fbvStyles.size.MEDIUM}
+            {fbvElement type="text" id="testUrl" value=$testUrl label="plugins.importexport.datacite.settings.form.testUrl" maxlength="200" size=$fbvStyles.size.MEDIUM}
             {/fbvFormArea}
             {fbvFormButtons submitText="common.save"}
         </form>
     </div>
-    <div id="deposit-tab">
+    <div id="queue-tab">
         <script type="text/javascript">
 			$(function () {ldelim}
-				$('#depositXmlForm').pkpHandler('$.pkp.controllers.form.FormHandler');
+				$('#queueXmlForm').pkpHandler('$.pkp.controllers.form.FormHandler');
                 {rdelim});
         </script>
         <div class="listing" width="100%">
-            <form id="depositXmlForm" class="pkp_form" action="{plugin_url path="export"}" method="post">
+            <form id="queueXmlForm" class="pkp_form" action="{plugin_url path="export"}" method="post">
                 {csrf}
                 <div class="pkp_content_panel">
                     <div class="pkpListPanel pkpListPanel--submissions">
                         <div class="pkpListPanel__body -pkpClearfix pkpListPanel__body--submissions">
                             <div class="pkpListPanel__content pkpListPanel__content--submissions">
                                 <ul aria-live="polite" class="pkpListPanel__items">
-                                    {foreach $itemsDeposit as $key=>$item}
+                                    {foreach $itemsQueue as $key=>$item}
                                         <li class="pkpListPanelItem pkpListPanelItem--submission pkpListPanelItem--hasSummary">
                                             <div class="pkpListPanelItem__summary -pkpClearfix">
                                                 <div class="pkpListPanelItem--submission__item">
@@ -98,7 +102,7 @@
                         </div>
                         <div class="pkpListPanel__footer -pkpClearfix">
                             <div class="pkpListPanel__count">
-                                {$itemsSizeDeposit} submissions
+                                {$itemsSizeQueue} submissions
                             </div>
                         </div>
                     </div>
@@ -119,7 +123,7 @@
                         <div class="pkpListPanel__body -pkpClearfix pkpListPanel__body--submissions">
                             <div class="pkpListPanel__content pkpListPanel__content--submissions">
                                 <ul aria-live="polite" class="pkpListPanel__items">
-                                    {foreach $items as $key=>$item}
+                                    {foreach $itemsDeposited as $key=>$item}
                                         <li class="pkpListPanelItem pkpListPanelItem--submission pkpListPanelItem--hasSummary">
                                             <div class="pkpListPanelItem__summary -pkpClearfix">
                                                 <div class="pkpListPanelItem--submission__item">
@@ -155,7 +159,7 @@
                         </div>
                         <div class="pkpListPanel__footer -pkpClearfix">
                             <div class="pkpListPanel__count">
-                                {$itemsSize} submissions
+                                {$itemsSizeDeposited} submissions
                             </div>
                         </div>
                     </div>

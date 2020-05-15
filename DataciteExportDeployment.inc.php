@@ -214,8 +214,12 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$request = Application::getRequest();
 		$press = $request->getPress();
 		$urlPart = ($isSubmission == true) ? array($object->getId()) : array($parent->getId(), 'c' . $object->getId());
-		//$dataURLPath = Request::url($press->getPath(), 'catalog', 'book', array($object->getId()));
-		$dataURLPath = "https://books.ub.uni-heidelberg.de/index.php/arthistoricum/catalog/book/" . implode('/', $urlPart);
+
+		$host = ($this->getPlugin()->isTestMode($press))  ? $this->getPlugin()->getSetting($press->getId(),"testUrl"):   Request::url($press->getPath());
+
+		$dataURLPath = implode("/",array($host, 'catalog', 'book', $object->getId()));
+
+
 		$dataURLs = $documentNode->createElement("dataURLs");
 		$dataURL = $documentNode->createElement("dataURL", $dataURLPath);
 		$dataURLs->appendChild($dataURL);
@@ -233,7 +237,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		if (isset($pubId)) {
 			if ($this->getPlugin()->isTestMode($press)) {
-				$pubId = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $pubId);
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getSetting($press->getId(),"testPrefix"), $pubId);
 			}
 			$doiProposal = $documentNode->createElement("doiProposal", $pubId);
 			$documentNode->documentElement->appendChild($doiProposal);
