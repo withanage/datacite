@@ -53,7 +53,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			case '':
 
 				$this->depositHandler($request, $templateMgr);
-				$this->depositedHandler($request, $templateMgr);
+
 
 
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
@@ -129,7 +129,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
 				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
-				$fileManager->deleteByPath($exportFileName);
+				//$fileManager->deleteByPath($exportFileName);
 
 			}
 
@@ -290,31 +290,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 	}
 
 
-	private function depositedHandler($request, TemplateManager $templateMgr) {
 
-		$context = $request->getContext();
-		$press = $request->getPress();
-		$submissionService = ServicesContainer::instance()->get('submission');
-		$submissions = $submissionService->getSubmissions($context->getId());
-		$items = [];
-		$locale = AppLocale::getLocale();
-		foreach ($submissions as $submission) {
-			$publisherID = $submission->getData('pub-id::publisher-id');
-			if ($publisherID) {
-				$items[] = array(
-					'id' => $submission->getId(),
-					'title' => $submission->getLocalizedTitle($locale),
-					'authors' => $submission->getAuthorString($locale),
-					'pubId' => $publisherID,
-					'registry' => $this->getRegistry($press)
-				);
-			}
-		}
-
-		$templateMgr->assign('items', $items);
-		$templateMgr->assign('itemsSize', sizeof($items));
-
-	}
 
 	private function depositHandler($request, TemplateManager $templateMgr) {
 
@@ -323,11 +299,20 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$submissionService = ServicesContainer::instance()->get('submission');
 		$submissions = $submissionService->getSubmissions($context->getId());
 		$items = [];
+		$itemsDeposit = [];
 		$locale = AppLocale::getLocale();
 		foreach ($submissions as $submission) {
 			$doi = $submission->getData('pub-id::doi');
 			$publisherID = $submission->getData('pub-id::publisher-id');
 			if ($doi and !$publisherID) {
+				$itemsDeposit[] = array(
+					'id' => $submission->getId(),
+					'title' => $submission->getLocalizedTitle($locale),
+					'authors' => $submission->getAuthorString($locale),
+					'pubId' => $doi,
+					'registry' => $this->getRegistry($press)
+				);
+			} elseif ($publisherID) {
 				$items[] = array(
 					'id' => $submission->getId(),
 					'title' => $submission->getLocalizedTitle($locale),
@@ -338,8 +323,10 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			}
 		}
 
-		$templateMgr->assign('itemsDeposit', $items);
-		$templateMgr->assign('itemsSizeDeposit', sizeof($items));
+		$templateMgr->assign('items', $items);
+		$templateMgr->assign('itemsSize', sizeof($items));
+		$templateMgr->assign('itemsDeposit', $itemsDeposit);
+		$templateMgr->assign('itemsSizeDeposit', sizeof($itemsDeposit));
 
 	}
 
