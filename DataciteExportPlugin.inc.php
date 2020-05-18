@@ -152,7 +152,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
 					$response = $this->depositXML($chapter, $press, $exportFileName, false);
-					$result[$submissionId.".c".$chapter->getId()] = ($response != "") ? $response : 'ok';
+					$result[$submissionId.".c".$chapter->getId()] = ($response != "") ? $chapter->getTitle()." : ".$response : 'ok';
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}
