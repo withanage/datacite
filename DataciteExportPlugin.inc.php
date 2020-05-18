@@ -137,7 +137,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId, $press, '.xml');
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
-				$result[$submissionId] = $this->depositXML($submission, $press, $exportFileName, true);
+				$response = $this->depositXML($submission, $press, $exportFileName, true);
+				$result[$submissionId] =  ($response != "") ? $submission->getTitle()." : ".$response : '';;
 				$fileManager->deleteByPath($exportFileName);
 			}
 			$chapterDao = DAORegistry::getDAO('ChapterDAO');
@@ -152,7 +153,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
 					$response = $this->depositXML($chapter, $press, $exportFileName, false);
-					$result[$submissionId.".c".$chapter->getId()] = ($response != "") ? $chapter->getTitle()." : ".$response : 'ok';
+					$result[$submissionId.".c".$chapter->getId()] = ($response != "") ? $chapter->getTitle()." : ".$response : '';
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}
