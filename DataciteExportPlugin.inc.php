@@ -152,7 +152,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
 					$response = $this->depositXML($chapter, $press, $exportFileName, false);
-					$result[$submissionId."c".$chapter->getId()] = ($response != "") ? $response : 'ok';
+					$result[$submissionId.".c".$chapter->getId()] = ($response != "") ? $response : 'ok';
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}
@@ -333,6 +333,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 		$success = 1;
 		$notification = "";
+		$notificationManager = new NotificationManager();
 		foreach ($responses as $submission => $error) {
 			$result = json_decode(str_replace("\n", "", $error), true);
 			if ($result["errors"]) {
@@ -341,10 +342,13 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$notification .= str_replace('"', '', $detail);
 				$success = 0;
 				self::writeLog($submission . " ::  " . $detail, 'ERROR');
+				$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $notification));
 			}
 		}
-		$notificationManager = new NotificationManager();
-		$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $notification));
+
+		if($success==1) {
+			$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => "Succesfully deposited"));
+		}
 	}
 
 }
