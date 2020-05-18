@@ -166,16 +166,20 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		if ($isSubmission == true) {
 			foreach ($authors as $author) {
 				$creator = $this->createAuthor($documentNode, $author, $locale);
-				$creators->appendChild($creator);
-				$documentNode->documentElement->appendChild($creators);
+				if ($creator) {
+					$creators->appendChild($creator);
+					$documentNode->documentElement->appendChild($creators);
+				}
 			}
 		} else {
 			$chapterAuthorDao = DAORegistry::getDAO('ChapterAuthorDAO');
 			$chapterAuthors = $chapterAuthorDao->getAuthors($object->getMonographId(), $object->getId());
 			while ($author = $chapterAuthors->next()) {
 				$creator = $this->createAuthor($documentNode, $author, $locale);
-				$creators->appendChild($creator);
-				$documentNode->documentElement->appendChild($creators);
+				if ($creator) {
+					$creators->appendChild($creator);
+					$documentNode->documentElement->appendChild($creators);
+				}
 
 			}
 
@@ -191,6 +195,9 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$person = $documentNode->createElement("person");
 		$familyName = $author->getFamilyName($locale);
 		$givenName = $author->getGivenName($locale);
+		if ($familyName=='' && $givenName=='') {
+			return null;
+		}
 		if ($familyName!='') {
 			$lastName = $documentNode->createElement("lastName", $familyName);
 			$firstName = $documentNode->createElement("firstName", $givenName);
@@ -332,7 +339,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 			if (isset($pubId)) {
 
 				if ($this->getPlugin()->isTestMode($press)) {
-					$pubId = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $pubId);
+					$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this-$this->getPlugin()->getDataciteAPITestPrefix($request), $pubId);
 				}
 				$relation = $documentNode->createElement("relation");
 				$identifier = $documentNode->createElement("identifier", $pubId);
@@ -366,7 +373,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		if (isset($pubId)) {
 
 			if ($this->getPlugin()->isTestMode($press)) {
-				$pubId = preg_replace('/^[\d]+(.)[\d]+/', DATACITE_API_TESTPREFIX, $pubId);
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getDataciteAPITestPrefix($request), $pubId);
 			}
 			$relation = $documentNode->createElement("relation");
 			$identifier = $documentNode->createElement("identifier", $pubId);

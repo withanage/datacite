@@ -55,6 +55,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				$this->getSettings($request, $templateMgr);
 				$this->updateSettings($request);
 
+				break;
+
 			case '':
 				$this->getSettings($request, $templateMgr);
 				$this->depositHandler($request, $templateMgr);
@@ -62,6 +64,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				break;
 			case 'export':
 				import('classes.notification.NotificationManager');
+
 				$responses = $this->exportSubmissions((array)$request->getUserVar('submission'));
 				$this->createNotifications($request, $responses);
 				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
@@ -341,9 +344,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			}
 		}
 		$notificationManager = new NotificationManager();
-		$notificationType = ($success == 1) ? NOTIFICATION_TYPE_SUCCESS : NOTIFICATION_TYPE_ERROR;
-		$message = ($success == 1) ? "Success" : $notification;
-		$notificationManager->createTrivialNotification($request->getUser()->getId(), $notificationType, array('contents' => $message));
+		$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $notification));
 	}
 
 }
