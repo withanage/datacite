@@ -10,10 +10,11 @@
  * application's specifics.
  */
 
-define('DATACITE_XMLNS', 'http://da-ra.de/schema/kernel-4');
-define('DATACITE_XMLNS_XSI', 'http://www.w3.org/2001/XMLSchema-instance');
-define('DATACITE_XSI_SCHEMAVERSION', '4');
-define('DATACITE_XSI_SCHEMALOCATION', 'http://da-ra.de/schema/kernel-4 http://www.da-ra.de/fileadmin/media/da-ra.de/Technik/4.0/dara.xsd');
+define('DARA_XMLNS', 'http://da-ra.de/schema/kernel-4');
+define('DATACITE_XMLNS', 'http://datacite.org/schema/kernel-4');
+define('XMLNS_XSI', 'http://www.w3.org/2001/XMLSchema-instance');
+define('DATACITE_XSI_SCHEMA_LOCATION', 'http://schema.datacite.org/meta/kernel-4.3/metadata.xsd');
+define('DARA_XSI_SCHEMA_LOCATION', 'http://www.da-ra.de/fileadmin/media/da-ra.de/Technik/4.0/dara.xsd');
 
 import('lib.pkp.classes.plugins.importexport.PKPImportExportDeployment');
 
@@ -60,15 +61,14 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		$rootNode = $documentNode->createElementNS($this->getNamespace(), $this->getRootElementName());
 		$rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xsi', $this->getXmlSchemaInstance());
-		$rootNode->setAttribute('xsi:schemaLocation', $this->getNamespace() . ' ' . $this->getSchemaFilename());
+		$rootNode->setAttribute('xsi:schemaLocation', $this->getNamespace() . ' ' . $this->getSchemaLocation());
 		$documentNode->appendChild($rootNode);
 
 		return $documentNode;
 	}
 
 	function getNamespace() {
-
-		return DATACITE_XMLNS;
+		return ($this->getPlugin()->isDara()) ? DARA_XMLNS: DATACITE_XMLNS;
 	}
 
 	function getRootElementName() {
@@ -78,18 +78,14 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	function getXmlSchemaInstance() {
 
-		return DATACITE_XMLNS_XSI;
+		return XMLNS_XSI;
 	}
 
-	function getSchemaFilename() {
-
-		return $this->getXmlSchemaLocation();
+	function getSchemaLocation() {
+		return ($this->getPlugin()->isDara()) ? DARA_XSI_SCHEMA_LOCATION: DATACITE_XSI_SCHEMA_LOCATION;;
 	}
 
-	function getXmlSchemaLocation() {
 
-		return DATACITE_XSI_SCHEMALOCATION;
-	}
 
 	function createResourceType($documentNode) {
 
@@ -302,12 +298,17 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 		$request = Application::getRequest();
 		$press = $request->getPress();
-		$publisher = $documentNode->createElement("publisher");
-		$institution = $documentNode->createElement("institution");
-		$institutionName = $documentNode->createElement("institutionName", $press->getData('publisher'));
+		if ($this->getPlugin()->isDara()) {
+			$publisher = $documentNode->createElement("publisher");
+			$institution = $documentNode->createElement("institution");
+			$institutionName = $documentNode->createElement("institutionName", $press->getData('publisher'));
 
-		$institution->appendChild($institutionName);
-		$publisher->appendChild($institution);
+			$institution->appendChild($institutionName);
+			$publisher->appendChild($institution);
+		}else{
+			$publisher = $documentNode->createElement("publisher",$press->getData('publisher'));
+		}
+
 		$documentNode->documentElement->appendChild($publisher);
 
 		return $documentNode;
@@ -340,7 +341,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 			if (isset($pubId)) {
 
 				if ($this->getPlugin()->isTestMode($press)) {
-					$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this-$this->getPlugin()->getDataciteAPITestPrefix($request), $pubId);
+					$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this-$this->getPlugin()->getDataciteAPITestPrefix(), $pubId);
 				}
 				$relation = $documentNode->createElement("relation");
 				$identifier = $documentNode->createElement("identifier", $pubId);
@@ -374,7 +375,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		if (isset($pubId)) {
 
 			if ($this->getPlugin()->isTestMode($press)) {
-				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getDataciteAPITestPrefix($request), $pubId);
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getDataciteAPITestPrefix(), $pubId);
 			}
 			$relation = $documentNode->createElement("relation");
 			$identifier = $documentNode->createElement("identifier", $pubId);
@@ -401,11 +402,6 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 	function setContext($context) {
 
 		$this->_context = $context;
-	}
-
-	function getXmlSchemaVersion() {
-
-		return DATACITE_XSI_SCHEMAVERSION;
 	}
 
 

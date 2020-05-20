@@ -11,9 +11,9 @@
 	<message key="plugins.importexport.datacite.submittedSubmissions">Select monographs to export</message>
 	<message key="plugins.importexport.datacite.results">Results</message>
 	<message key="plugins.importexport.datacite.settings.description">Description</message>
-	<message key="plugins.importexport.datacite.intro"><![CDATA[ If you want to register DOIs with mEDRA, please follow the directions on the <a href="http://www.medra.org/en/guide.htm" target="_blank">mEDRA homepage</a> to receive a username and password. If you do not have your own username and password you'll still be able to export into the mEDRA XML format (Onix for DOI) but you cannot register your DOIs with mEDRA from within OMP. Please note that the password will be saved as plain text, i.e. not encrypted, due to the mEDRA registration service requirements.]]></message>
+	<message key="plugins.importexport.datacite.intro"><![CDATA[ This plugin registers DOIS for monographs and chapters  for DOI provider <a href="https://datacite.org">Datacite.org</a>. Additionally it supports <a href="https://www.da-ra.de/home/">da|ra</a>) registration;  Germany based Datacite DOI registration agency.]]></message>
 	<message key="plugins.importexport.datacite.settings">Settings</message>
-	<message key="plugins.importexport.datacite.settings.form.dara"><![CDATA[ Use <a href="https://www.da-ra.de">da|ra</a> instead of <a href="https://datacite.org/">datacite.org</a>]]></message>
+	<message key="plugins.importexport.datacite.settings.form.dara"><![CDATA[ Use <a href="https://www.da-ra.de">da|ra</a>  as DOI provider]]></message>
 	<message key="plugins.importexport.datacite.settings.form.testUrl">Test Url</message>
 	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
 	<message key="plugins.importexport.datacite.settings.form.password.description"></message>
@@ -24,7 +24,7 @@
 	<message key="plugins.importexport.datacite.settings.form.testMode.description">Use the DataCite test prefix for DOI registration. Please do not forget to remove this option for the production.</message>
 	<message key="plugins.importexport.datacite.settings.form.testDescription">Test Server settings </message>
 	<message key="plugins.importexport.datacite.settings.form.testIntro">You can set the datacited test server here e.g. https://labs.da-ra.de/dara/study/importXML?registration=true </message>
-	<message key="plugins.importexport.datacite.settings.form.testPrefix">Test Prfeix</message>
+	<message key="plugins.importexport.datacite.settings.form.testPrefix">Test Prefix</message>
 	<message key="plugins.importexport.datacite.settings.form.testRegistry"> Test registry</message>
 	<message key="plugins.importexport.datacite.settings.form.testUrl">Test URL</message>
 	<message key="plugins.importexport.datacite.senderTask.name">DataCite automatic registration task</message>

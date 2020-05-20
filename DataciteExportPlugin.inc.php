@@ -14,8 +14,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		parent::__construct();
 	}
 
-	function getDataciteAPITestPrefix($request) {
-
+	function getDataciteAPITestPrefix() {
+		$request = Application::getRequest();
 		$press = $request->getPress();
 
 		return $this->getSetting($press->getId(), 'testPrefix');
@@ -51,11 +51,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 		switch (array_shift($args)) {
 			case 'settings':
-				$this->getSettings($request, $templateMgr);
+				$this->getSettings($templateMgr);
 				$this->updateSettings($request);
 				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 			case '':
-				$this->getSettings($request, $templateMgr);
+				$this->getSettings($templateMgr);
 				$this->depositHandler($request, $templateMgr);
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
 
@@ -81,8 +81,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return true;
 	}
 
-	function getSettings($request, TemplateManager $templateMgr) {
-
+	function getSettings(TemplateManager $templateMgr) {
+		$request = Application::getRequest();
 		$press = $request->getPress();
 
 
@@ -191,7 +191,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			if ($this->isTestMode($press)) {
 				$doi = $this->createTestDOI($request,$doi);
 			}
-			$jsonPayload = array("data" => (array('id' => $doi, 'type' => "dois",
+			$jsonPayload = array("data" => (array('type' => "dois",
 				'attributes' => array("doi" => $doi))));
 
 			return json_encode($jsonPayload);
@@ -275,9 +275,9 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		curl_close($curlCh);
 		if ($result === true) {
 			if ($this->isTestMode($press)) {
-				$registeredDoi = $this->createTestDOI($request, $doi);
+				$doi = $this->createTestDOI($request, $doi);
 			}
-			$object->setData('pub-id::publisher-id', $registeredDoi);
+			$object->setData('pub-id::publisher-id', $doi);
 			if ($isSubmission) {
 				$submissionDao = Application::getSubmissionDAO();
 				$submissionDao->updateObject($object);
@@ -290,11 +290,12 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return $response;
 	}
 
-	function isDara($press) {
+	function isDara() {
+		$request = Application::getRequest();
+		$press = $request->getPress();
+		$daraMode = $this->getSetting($press->getId(), 'daraMode');
 
-		$testMode = $this->getSetting($press->getId(), 'daraMode');
-
-		return ($testMode == "on");
+		return ($daraMode == "on");
 	}
 
 	function isTestMode($press) {
@@ -413,7 +414,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 
 	public function createTestDOI($request, $doi) {
-		return PKPString::regexp_replace('#^[^/]+/#', $this->getDataciteAPITestPrefix($request) . '/', $doi);
+		return PKPString::regexp_replace('#^[^/]+/#', $this->getDataciteAPITestPrefix() . '/', $doi);
 	}
 
 }
