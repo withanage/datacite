@@ -1,20 +1,20 @@
-##### OMPDatacite and DARA Plugin
+#### OMPDatacite and DARA Plugin
 
-###### Introduction
+#### Introduction
 This plugin registers DOIS for monographs and chapters  for DOI provider [Datacite.org](https://datacite.org).
 
 Additionally it supports [da|ra](https://www.da-ra.de/home/) registration;  Germany based Datacite DOI registration agency.
 
 Avaliable in : [German](README_DE.md)
 
-######  Installation
+####  Installation
 ```bash
 OMP=/path/to/OMP_INSTALLATION
 cd $OMP/plugins/importexport
 git clone https://github.com/withanage/datacite
 ```
 
-######  Setup Datacite
+####  Setup Datacite
 ![datacite](www/datacite.png)
 * Navigate to {OMP_SERVER}/index.php/{MY_PRESS}/management/importexport/plugin/DataciteExportPlugin
 * Use da|ra as DOI provider: Leave unchecked
@@ -25,7 +25,7 @@ git clone https://github.com/withanage/datacite
 * Test registry:  (Only for testing), provided by datacite
 * Test URL:  (Only for testing) Production URL for overwriting the XML entries
 
-######  Setup Dara
+####  Setup Dara
 ![dara](www/dara.png)
 
 * Use da|ra as DOI provider: Please click this button
@@ -36,9 +36,9 @@ git clone https://github.com/withanage/datacite
 * Test registry:  (Only for testing), provided by da|ra
 * Test URL:  (Only for testing) Production URL for overwriting the XML entries
 
-###### Usage
+#### Usage
 ![usage](www/usage.gif)
-######  Credits
+####  Credits
 
 * Main developer and Designer
 
