@@ -11,7 +11,7 @@
 	<message key="plugins.importexport.datacite.submittedSubmissions">Select monographs to export</message>
 	<message key="plugins.importexport.datacite.results">Results</message>
 	<message key="plugins.importexport.datacite.settings.description">Description</message>
-	<message key="plugins.importexport.datacite.intro"><![CDATA[ This plugin registers DOIS for monographs and chapters  for DOI provider <a href="https://datacite.org">Datacite.org</a>. Additionally it supports <a href="https://www.da-ra.de/home/">da|ra</a>) registration;  Germany based Datacite DOI registration agency.]]></message>
+	<message key="plugins.importexport.datacite.intro"><![CDATA[ This plugin registers DOIs for monographs and chapters  for DOI provider <a href="https://datacite.org">Datacite.org</a>. Additionally it supports <a href="https://www.da-ra.de/home/">da|ra</a>) registration;  Germany based Datacite DOI registration agency.]]></message>
 	<message key="plugins.importexport.datacite.settings">Settings</message>
 	<message key="plugins.importexport.datacite.settings.form.dara"><![CDATA[ Use <a href="https://www.da-ra.de">da|ra</a>  as DOI provider]]></message>
 	<message key="plugins.importexport.datacite.settings.form.testUrl">Test Url</message>
