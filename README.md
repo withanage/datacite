@@ -25,7 +25,7 @@ git clone https://github.com/withanage/datacite
 * Test registry:  (Only for testing), provided by datacite
 * Test URL:  (Only for testing) Production URL for overwriting the XML entries
 
-####  Setup Dara
+####  Setup Da|ra
 ![dara](www/dara.png)
 
 * Use da|ra as DOI provider: Please click this button
