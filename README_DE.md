@@ -1,5 +1,6 @@
 ##### OMPDatacite and DARA Plugin
 
+Übersetzungen verfügbar in: [Englisch] (README.md)
 ###### Einleitung
 Dieses Plugin registriert DOIS für Mongraphen, Sammelbände und Kapitel für den DOI-Anbieter [Datacite.org](https://datacite.org).
 
