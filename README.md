@@ -40,6 +40,6 @@ git clone https://github.com/withanage/datacite
 ![usage](www/usage.gif)
 ####  Credits
 
-* Main developer and Designer
+* Main Developer and Designer
 
 [https://github.com/withanage](https://github.com/withanage)
