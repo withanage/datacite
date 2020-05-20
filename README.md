@@ -5,7 +5,7 @@ This plugin registers DOIS for monographs and chapters  for DOI provider [Dataci
 
 Additionally it supports [da|ra](https://www.da-ra.de/home/) registration;  Germany based Datacite DOI registration agency.
 
-Avaliable in : [German](README_DE.md)
+Translations avaliable in : [German](README_DE.md)
 
 ####  Installation
 ```bash
