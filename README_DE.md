@@ -1,4 +1,4 @@
-##### OMPDatacite and DARA Plugin
+##### OMPDatacite and DA|RA Plugin
 
 ###### Einleitung
 Dieses Plugin registriert DOIS für Mongraphen, Sammelbände und Kapitel für den DOI-Anbieter [Datacite.org](https://datacite.org).
