@@ -17,9 +17,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 	function getDataciteAPITestPrefix($request) {
 
 		$press = $request->getPress();
-		$testPrefix = $this->getSetting($press->getId(), 'testPrefix');
 
-		return $testPrefix;
+		return $this->getSetting($press->getId(), 'testPrefix');
 	}
 
 	private static function writeLog($message, $level) {
@@ -54,13 +53,12 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			case 'settings':
 				$this->getSettings($request, $templateMgr);
 				$this->updateSettings($request);
-
-				break;
-
+				$request->redirect(null, 'management', 'importexport', array('plugin', 'DataciteExportPlugin'));
 			case '':
 				$this->getSettings($request, $templateMgr);
 				$this->depositHandler($request, $templateMgr);
 				$templateMgr->display($this->getTemplateResource('index.tpl'));
+
 				break;
 			case 'export':
 				import('classes.notification.NotificationManager');
@@ -86,6 +84,8 @@ class DataciteExportPlugin extends ImportExportPlugin {
 	function getSettings($request, TemplateManager $templateMgr) {
 
 		$press = $request->getPress();
+
+
 		$api = $this->getSetting($press->getId(), 'api');
 		$templateMgr->assign('api', $api);
 		$username = $this->getSetting($press->getId(), 'username');
@@ -100,8 +100,10 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$templateMgr->assign('testRegistry', $testRegistry);
 		$testUrl = $this->getSetting($press->getId(), 'testUrl');
 		$templateMgr->assign('testUrl', $testUrl);
+		$daraMode = $this->getSetting($press->getId(), 'daraMode');
+		$templateMgr->assign('daraMode', $daraMode);
 
-		return array($press, $api, $username, $password, $testMode, $testPrefix, $testRegistry,$testUrl);
+		return array($press, $api, $username, $password, $testMode, $testPrefix, $testRegistry,$testUrl,$daraMode);
 	}
 
 	function updateSettings($request) {
@@ -110,6 +112,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$userVars = $request->getUserVars();
 		if (count($userVars) > 0) {
 			$this->updateSetting($contextId, "api", $userVars["api"]);
+			$this->updateSetting($contextId, "daraMode", $userVars["daraMode"]);
 			$this->updateSetting($contextId, "username", $userVars["username"]);
 			$this->updateSetting($contextId, "password", $userVars["password"]);
 			$this->updateSetting($contextId, "testMode", $userVars["testMode"]);
@@ -162,6 +165,41 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return $result;
 	}
 
+	function createDatacitePayloadObject($object, $url, $payload) {
+
+		{
+			$doi = $object->getStoredPubId("doi");
+			$request = Application::getRequest();
+			$press = $request->getPress();
+			if ($this->isTestMode($press)) {
+				$doi = $this->createTestDOI($request,$doi);
+			}
+			$jsonPayload = array("data" => (array('id' => $doi, 'type' => "dois",
+				'attributes' => array("event" => "publish", "doi" => $doi, "url" => $url, "xml" => base64_encode($payload)))));
+
+			return json_encode($jsonPayload);
+
+		}
+
+	}
+	function createDataciteCreateObject($object, $payload) {
+
+		{
+			$doi = $object->getStoredPubId("doi");
+			$request = Application::getRequest();
+			$press = $request->getPress();
+			if ($this->isTestMode($press)) {
+				$doi = $this->createTestDOI($request,$doi);
+			}
+			$jsonPayload = array("data" => (array('id' => $doi, 'type' => "dois",
+				'attributes' => array("doi" => $doi))));
+
+			return json_encode($jsonPayload);
+
+		}
+
+	}
+
 	function depositXML($object, $press, $filename, $isSubmission) {
 
 		$username = $this->getSetting($press->getId(), 'username');
@@ -171,7 +209,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$request = Application::getRequest();
 		assert(!empty($doi));
 		if ($this->isTestMode($press)) {
-			$doi = PKPString::regexp_replace('#^[^/]+/#', $this->getDataciteAPITestPrefix($request) . '/', $doi);
+			$doi = $this->createTestDOI($request,$doi);
 		}
 		$url = Request::url($press->getPath(), 'catalog', 'book', array($object->getId()));
 		assert(!empty($url));
@@ -192,11 +230,25 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$payload = file_get_contents($filename);
 		assert($payload !== false && !empty($payload));
 		curl_setopt($curlCh, CURLOPT_URL, $api);
-		curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Accept: application/json'));
-		curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/xml;charset=UTF-8'));
-		curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
+		if($this->isDara($press)) {
+
+			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/xml;charset=UTF-8'));
+			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
+		}
+		else {
+
+			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/vnd.api+json'));
+			$dataciteCreateObject = $this->createDataciteCreateObject($object, $payload);
+			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $dataciteCreateObject);
+		}
 		$result = true;
 		$response = curl_exec($curlCh);
+
+		// $datacitePayloadObject = $this->createDatacitePayloadObject($object,$url, $payload);
+		// curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
+		//  $response = curl_exec($curlCh);
+
 		if ($response === false) {
 			$result = array(array('plugins.importexport.common.register.error.mdsError', "Registering DOI $doi: No response from server."));
 		} else {
@@ -223,7 +275,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		curl_close($curlCh);
 		if ($result === true) {
 			if ($this->isTestMode($press)) {
-				$registeredDoi = PKPString::regexp_replace('#^[^/]+/#', $this->getDataciteAPITestPrefix($request) . '/', $doi);
+				$registeredDoi = $this->createTestDOI($request, $doi);
 			}
 			$object->setData('pub-id::publisher-id', $registeredDoi);
 			if ($isSubmission) {
@@ -236,6 +288,13 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		}
 
 		return $response;
+	}
+
+	function isDara($press) {
+
+		$testMode = $this->getSetting($press->getId(), 'daraMode');
+
+		return ($testMode == "on");
 	}
 
 	function isTestMode($press) {
@@ -350,6 +409,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		if($success==1) {
 			$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => "Succesfully deposited"));
 		}
+	}
+
+
+	public function createTestDOI($request, $doi) {
+		return PKPString::regexp_replace('#^[^/]+/#', $this->getDataciteAPITestPrefix($request) . '/', $doi);
 	}
 
 }

@@ -33,7 +33,10 @@
             {fbvFormArea id="dataciteSettingsFormArea"}
                 <p class="pkp_help">{translate key="plugins.importexport.datacite.settings.description"}</p>
                 <p class="pkp_help">{translate key="plugins.importexport.datacite.intro"}</p>
-            {fbvFormSection}
+			{fbvFormSection list="true"}
+			{fbvElement type="checkbox" id="daraMode" label="plugins.importexport.datacite.settings.form.dara" checked=$daraMode|compare:true}
+			{/fbvFormSection}
+			{fbvFormSection}
             {fbvElement type="text" id="api" value=$api label="plugins.importexport.datacite.settings.form.url" maxlength="100" size=$fbvStyles.size.MEDIUM}
             {fbvElement type="text" id="username" value=$username label="plugins.importexport.datacite.settings.form.username" maxlength="50" size=$fbvStyles.size.MEDIUM}
             {fbvElement type="text" password="true" id="password" value=$password label="plugins.importexport.datacite.settings.form.password" maxLength="50" size=$fbvStyles.size.MEDIUM}

@@ -13,6 +13,7 @@
 	<message key="plugins.importexport.datacite.settings.description">Description</message>
 	<message key="plugins.importexport.datacite.intro"><![CDATA[ If you want to register DOIs with mEDRA, please follow the directions on the <a href="http://www.medra.org/en/guide.htm" target="_blank">mEDRA homepage</a> to receive a username and password. If you do not have your own username and password you'll still be able to export into the mEDRA XML format (Onix for DOI) but you cannot register your DOIs with mEDRA from within OMP. Please note that the password will be saved as plain text, i.e. not encrypted, due to the mEDRA registration service requirements.]]></message>
 	<message key="plugins.importexport.datacite.settings">Settings</message>
+	<message key="plugins.importexport.datacite.settings.form.dara"><![CDATA[ Use <a href="https://www.da-ra.de">da|ra</a> instead of <a href="https://datacite.org/">datacite.org</a>]]></message>
 	<message key="plugins.importexport.datacite.settings.form.testUrl">Test Url</message>
 	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
 	<message key="plugins.importexport.datacite.settings.form.password.description"></message>

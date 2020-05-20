@@ -222,10 +222,11 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$press = $request->getPress();
 		$urlPart = ($isSubmission == true) ? array($object->getId()) : array($parent->getId(), 'c' . $object->getId());
 
-		$host = ($this->getPlugin()->isTestMode($press))  ? $this->getPlugin()->getSetting($press->getId(),"testUrl"):   Request::url($press->getPath());
+		$testUrl = $this->getPlugin()->getSetting($press->getId(), "testUrl");
+
+		$host = ($this->getPlugin()->isTestMode($press))  ? $testUrl :   Request::url($press->getPath());
 
 		$dataURLPath = implode("/",array($host, 'catalog', 'book', $object->getId()));
-
 
 		$dataURLs = $documentNode->createElement("dataURLs");
 		$dataURL = $documentNode->createElement("dataURL", $dataURLPath);
