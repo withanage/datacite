@@ -222,7 +222,13 @@ class DataciteExportPlugin extends ImportExportPlugin {
 			}
 		}
 		curl_setopt($curlCh, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curlCh, CURLOPT_POST, true);
+		if($this->isDara($press)) {
+			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+
+		}
+		else {
+			curl_setopt($curlCh, CURLOPT_PUT, true);
+		}
 		curl_setopt($curlCh, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($curlCh, CURLOPT_USERPWD, "$username:$password");
 		curl_setopt($curlCh, CURLOPT_SSL_VERIFYPEER, false);
@@ -230,18 +236,11 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		$payload = file_get_contents($filename);
 		assert($payload !== false && !empty($payload));
 		curl_setopt($curlCh, CURLOPT_URL, $api);
-		if($this->isDara($press)) {
+		curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('"Content-Type: application/xml;charset=UTF-8'));
 
-			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Accept: application/json'));
-			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/xml;charset=UTF-8'));
-			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
-		}
-		else {
 
-			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/vnd.api+json'));
-			$dataciteCreateObject = $this->createDataciteCreateObject($object, $payload);
-			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $dataciteCreateObject);
-		}
+		curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
+
 		$result = true;
 		$response = curl_exec($curlCh);
 
