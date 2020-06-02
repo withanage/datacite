@@ -18,7 +18,8 @@ define('DARA_XSI_SCHEMA_LOCATION', 'http://www.da-ra.de/fileadmin/media/da-ra.de
 
 import('lib.pkp.classes.plugins.importexport.PKPImportExportDeployment');
 
-class DataciteExportDeployment extends PKPImportExportDeployment {
+class DataciteExportDeployment extends PKPImportExportDeployment
+{
 
 	var $_context;
 
@@ -26,7 +27,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	private $givenName;
 
-	function __construct($request, $plugin) {
+	function __construct($request, $plugin)
+	{
 
 		$context = $request->getContext();
 		parent::__construct($context, $plugin);
@@ -34,30 +36,37 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		$this->_plugin = $plugin;
 	}
 
-	function createNodes($documentNode, $object, $parent, $isSubmission) {
+	function createNodes($documentNode, $object, $parent, $isSubmission)
+	{
 
 		$documentNode = $this->createRootNode($documentNode);
-		$documentNode = $this->createResourceType($documentNode);
+		$documentNode = $this->createResourceType($documentNode, $isSubmission);
 		$documentNode = $this->createResourceIdentifier($documentNode, $object);
 		$documentNode = $this->createTitles($documentNode, $object, $parent, $isSubmission);
-		$documentNode = $this->createOtherTitles($documentNode, $object, $parent, $isSubmission);
 		$documentNode = $this->createAuthors($documentNode, $object, $parent, $isSubmission);
-		$documentNode = $this->createDataURLs($documentNode, $object, $parent, $isSubmission);
-		$documentNode = $this->createDoiProposal($documentNode, $object);
 		$documentNode = $this->createPublicationYear($documentNode, $object, $parent, $isSubmission);
-		$documentNode = $this->createPublicationPlace($documentNode);
 		$documentNode = $this->createPublisher($documentNode);
-		$documentNode = $this->createAvailability($documentNode, $object);
-		if ($isSubmission == true) {
-			$documentNode = $this->createRelationsOfChildren($documentNode, $object);
-		} else {
-			$documentNode = $this->createRelationsOfParent($documentNode, $parent);
+
+		if ($this->getPlugin()->isDara()) {
+			$documentNode = $this->createOtherTitles($documentNode, $object, $parent, $isSubmission);
+			$documentNode = $this->createAvailability($documentNode, $object);
+			$documentNode = $this->createPublicationPlace($documentNode);
+			$documentNode = $this->createDataURLs($documentNode, $object, $parent, $isSubmission);
+			$documentNode = $this->createDoiProposal($documentNode, $object);
+			if ($isSubmission == true) {
+				$documentNode = $this->createRelationsOfChildren($documentNode, $object);
+			} else {
+				$documentNode = $this->createRelationsOfParent($documentNode, $parent);
+			}
+
 		}
+
 
 		return $documentNode;
 	}
 
-	function createRootNode($documentNode) {
+	function createRootNode($documentNode)
+	{
 
 		$rootNode = $documentNode->createElementNS($this->getNamespace(), $this->getRootElementName());
 		$rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xsi', $this->getXmlSchemaInstance());
@@ -67,94 +76,118 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	function getNamespace() {
-		return ($this->getPlugin()->isDara()) ? DARA_XMLNS: DATACITE_XMLNS;
+	function getNamespace()
+	{
+		return ($this->getPlugin()->isDara()) ? DARA_XMLNS : DATACITE_XMLNS;
 	}
 
-	function getRootElementName() {
+	function getPlugin()
+	{
+
+		return $this->_plugin;
+	}
+
+	function setPlugin($plugin)
+	{
+
+		$this->_plugin = $plugin;
+	}
+
+	function getRootElementName()
+	{
 
 		return 'resource';
 	}
 
-	function getXmlSchemaInstance() {
+	function getXmlSchemaInstance()
+	{
 
 		return XMLNS_XSI;
 	}
 
-	function getSchemaLocation() {
-		return ($this->getPlugin()->isDara()) ? DARA_XSI_SCHEMA_LOCATION: DATACITE_XSI_SCHEMA_LOCATION;;
+	function getSchemaLocation()
+	{
+		return ($this->getPlugin()->isDara()) ? DARA_XSI_SCHEMA_LOCATION : DATACITE_XSI_SCHEMA_LOCATION;
 	}
 
-
-
-	function createResourceType($documentNode) {
-
-		$e = $documentNode->createElement("resourceType", "Text");
-		$documentNode->documentElement->appendChild($e);
-
+	function createResourceType($documentNode, $isSubmission)
+	{
+		if ($this->getPlugin()->isDara()) {
+			$e = $documentNode->createElement("resourceType", "Text");
+			$documentNode->documentElement->appendChild($e);
+		} else {
+			$type = ($isSubmission == true) ? 'Monograph' : 'Chapter';
+			$e = $documentNode->createElement("resourceType", $type);
+			$e->setAttribute('resourceTypeGeneral', 'Text');
+			$documentNode->documentElement->appendChild($e);
+		}
 		return $documentNode;
 	}
 
-	function createResourceIdentifier($documentNode, $object) {
+	function createResourceIdentifier($documentNode, $object)
+	{
 
-		$e = $documentNode->createElement("resourceIdentifier");
 
+		$request = Application::getRequest();
+		$press = $request->getPress();
 		$pubId = $object->getData('pub-id::doi');
+
 		if (isset($pubId)) {
-			$pubIdSuffix = preg_replace('/^[\d]+(.)[\d]+(\/)/', '', $pubId);
-			$identifier = $documentNode->createElement("identifier", $pubIdSuffix);
-			$e->appendChild($identifier);
+			if ($this->getPlugin()->isTestMode($press)) {
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getSetting($press->getId(), "testPrefix"), $pubId);
+			}
 		}
 
-		$currentVersion = $documentNode->createElement("currentVersion", 1);
-		$e->appendChild($currentVersion);
-		$documentNode->documentElement->appendChild($e);
+		if ($this->getPlugin()->isDara()) {
+			$e = $documentNode->createElement("resourceIdentifier");
+			if (isset($pubId)) {
+				$identifier = $documentNode->createElement("identifier", $pubId);
+				$e->appendChild($identifier);
+			}
+			$currentVersion = $documentNode->createElement("currentVersion", 1);
+			$e->appendChild($currentVersion);
+			$documentNode->documentElement->appendChild($e);
+		} else {
+			$identifier = $documentNode->createElement("identifier", $pubId);
+			$identifier->setAttribute("identifierType", "DOI");
+			$documentNode->documentElement->appendChild($identifier);
+
+		}
 
 		return $documentNode;
 	}
-	function xmlEscape($value) {
-		return XMLNode::xmlentities($value, ENT_NOQUOTES);
-	}
-	function createTitles($documentNode, $object, $parent, $isSubmission) {
+
+	function createTitles($documentNode, $object, $parent, $isSubmission)
+	{
 
 		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
-		$titles = $documentNode->createElement("titles");
-		$language = $documentNode->createElement("language", substr($locale, 0, 2));
-		$title = $documentNode->createElement("title");
 		$localizedTitle = $object->getLocalizedTitle($locale);
-		$titleName = $documentNode->createElement("titleName", $this->xmlEscape($localizedTitle));
-		$title->appendChild($titleName);
-		$title->appendChild($language);
-		$titles->appendChild($title);
+		$language = $documentNode->createElement("language", substr($locale, 0, 2));
+		$titles = $documentNode->createElement("titles");
+		$titleValue = $this->xmlEscape($localizedTitle);
+		if ($this->getPlugin()->isDara()) {
+			$title = $documentNode->createElement("title");
+			$titleName = $documentNode->createElement("titleName", $titleValue);
+			$title->appendChild($titleName);
+			$title->appendChild($language);
+			$titles->appendChild($title);
+		} else {
+			$title = $documentNode->createElement("title", $titleValue);
+			$title->setAttribute("xml:lang", str_replace_first("_", "-", $locale));
+			$titles->appendChild($title);
+		}
 		$documentNode->documentElement->appendChild($titles);
 
 		return $documentNode;
 	}
 
-	function createOtherTitles($documentNode, $object, $parent, $isSubmission) {
-
-		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
-		$localizedSubtitle = $object->getLocalizedSubtitle($locale);
-		if (strlen($localizedSubtitle) > 0) {
-			$otherTitles = $documentNode->createElement("otherTitles");
-
-			$otherTitle = $documentNode->createElement("otherTitle");
-			$language = $documentNode->createElement("language", substr($locale, 0, 2));
-			$titleName = $documentNode->createElement("titleName", $this->xmlEscape($localizedSubtitle));
-			$titleType = $documentNode->createElement("titleType", "Subtitle");
-
-			$otherTitle->appendChild($language);
-			$otherTitle->appendChild($titleName);
-			$otherTitle->appendChild($titleType);
-			$otherTitles->appendChild($otherTitle);
-
-			$documentNode->documentElement->appendChild($otherTitles);
-		}
-
-		return $documentNode;
+	function xmlEscape($value)
+	{
+		return XMLNode::xmlentities($value, ENT_NOQUOTES);
 	}
 
-	function createAuthors($documentNode, $object, $parent, $isSubmission) {
+	function createAuthors($documentNode, $object, $parent, $isSubmission)
+	{
 
 		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
 		$creators = $documentNode->createElement("creators");
@@ -185,104 +218,123 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	private function createAuthor($documentNode, $author, $locale) {
+	function createAuthor($documentNode, $author, $locale)
+	{
 
 		$creator = $documentNode->createElement("creator");
 		$person = $documentNode->createElement("person");
 		$familyName = $author->getFamilyName($locale);
 		$givenName = $author->getGivenName($locale);
-		if ($familyName=='' && $givenName=='') {
+		if ($familyName == '' && $givenName == '') {
 			return null;
 		}
-		if ($familyName!='') {
-			$lastName = $documentNode->createElement("lastName", $familyName);
-			$firstName = $documentNode->createElement("firstName", $givenName);
-		$person->appendChild($firstName);
-		$person->appendChild($lastName);
-			$creator->appendChild($person);
-		}
-		else {
-			$institution = $documentNode->createElement("institution");
-			$institutionName = $documentNode->createElement("institutionName", $this->xmlEscape($givenName));
-			$institution->appendChild($institutionName);
-			$creator->appendChild($institution);
+		if ($this->getPlugin()->isDara()) {
+			if ($familyName != '') {
+				$lastName = $documentNode->createElement("lastName", $familyName);
+				$firstName = $documentNode->createElement("firstName", $givenName);
+				$person->appendChild($firstName);
+				$person->appendChild($lastName);
+				$creator->appendChild($person);
+			} else {
+				$institution = $documentNode->createElement("institution");
+				$institutionName = $documentNode->createElement("institutionName", $this->xmlEscape($givenName));
+				$institution->appendChild($institutionName);
+				$creator->appendChild($institution);
 			}
+		} else {
+			$creatorName = $documentNode->createElement("creatorName", $familyName . ', ' . $givenName);
+			$creatorName->setAttribute("nameType", "Personal");
+			$creator->appendChild($creatorName);
+		}
 
 
 		return $creator;
 	}
 
-	function createDataURLs($documentNode, $object, $parent, $isSubmission) {
-
-		$request = Application::getRequest();
-		$press = $request->getPress();
-		$urlPart = ($isSubmission == true) ? array($object->getId()) : array($parent->getId(), 'c' . $object->getId());
-
-		$testUrl = $this->getPlugin()->getSetting($press->getId(), "testUrl");
-
-		$host = ($this->getPlugin()->isTestMode($press))  ? $testUrl :   Request::url($press->getPath());
-
-		$dataURLPath = implode("/",array($host, 'catalog', 'book', $object->getId()));
-
-		$dataURLs = $documentNode->createElement("dataURLs");
-		$dataURL = $documentNode->createElement("dataURL", $dataURLPath);
-		$dataURLs->appendChild($dataURL);
-		$documentNode->documentElement->appendChild($dataURLs);
-
-		return $documentNode;
-
-	}
-
-	function createDoiProposal($documentNode, $object) {
-
-		$request = Application::getRequest();
-		$press = $request->getPress();
-		$pubId = $object->getData('pub-id::doi');
-
-		if (isset($pubId)) {
-			if ($this->getPlugin()->isTestMode($press)) {
-				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getSetting($press->getId(),"testPrefix"), $pubId);
-			}
-			$doiProposal = $documentNode->createElement("doiProposal", $pubId);
-			$documentNode->documentElement->appendChild($doiProposal);
-
-
-		}
-
-		return $documentNode;
-	}
-
-	function getPlugin() {
-
-		return $this->_plugin;
-	}
-
-	function setPlugin($plugin) {
-
-		$this->_plugin = $plugin;
-	}
-
-	function createPublicationYear($documentNode, $object, $parent, $isSubmission) {
+	function createPublicationYear($documentNode, $object, $parent, $isSubmission)
+	{
 
 		$date = $object->getDatePublished();
-		if ($date == null)  {
-			if($isSubmission== true) {
+		if ($date == null) {
+			if ($isSubmission == true) {
 				$date = $object->getDateSubmitted();
-			}
-			else {
-					$date =  ($parent->getDatePublished())? $parent->getDatePublished(): $parent->getDateSubmitted();
+			} else {
+				$date = ($parent->getDatePublished()) ? $parent->getDatePublished() : $parent->getDateSubmitted();
 			}
 		}
-
-		$publicationDate = $documentNode->createElement("publicationDate");
-		$year = $documentNode->createElement("year", substr($date, 0, 4));
-		$publicationDate->appendChild($year);
-		$documentNode->documentElement->appendChild($publicationDate);
+		if ($this->getPlugin()->isDara()) {
+			$publicationDate = $documentNode->createElement("publicationDate");
+			$year = $documentNode->createElement("year", substr($date, 0, 4));
+			$publicationDate->appendChild($year);
+			$documentNode->documentElement->appendChild($publicationDate);
+		} else {
+			$publicationYear = $documentNode->createElement("publicationYear", substr($date, 0, 4));
+			$documentNode->documentElement->appendChild($publicationYear);
+		}
 
 		return $documentNode;
 	}
 
-	function createPublicationPlace($documentNode) {
+	function createPublisher($documentNode)
+	{
+
+		$request = Application::getRequest();
+		$press = $request->getPress();
+		if ($this->getPlugin()->isDara()) {
+			$publisher = $documentNode->createElement("publisher");
+			$institution = $documentNode->createElement("institution");
+			$institutionName = $documentNode->createElement("institutionName", $press->getData('publisher'));
+
+			$institution->appendChild($institutionName);
+			$publisher->appendChild($institution);
+		} else {
+			$publisher = $documentNode->createElement("publisher", $press->getData('publisher'));
+		}
+
+		$documentNode->documentElement->appendChild($publisher);
+
+		return $documentNode;
+
+	}
+
+	function createOtherTitles($documentNode, $object, $parent, $isSubmission)
+	{
+
+		$locale = ($isSubmission == true) ? $object->getData('locale') : $parent->getData('locale');
+		$localizedSubtitle = $object->getLocalizedSubtitle($locale);
+		if (strlen($localizedSubtitle) > 0) {
+			$otherTitles = $documentNode->createElement("otherTitles");
+
+			$otherTitle = $documentNode->createElement("otherTitle");
+			$language = $documentNode->createElement("language", substr($locale, 0, 2));
+			$titleName = $documentNode->createElement("titleName", $this->xmlEscape($localizedSubtitle));
+			$titleType = $documentNode->createElement("titleType", "Subtitle");
+
+			$otherTitle->appendChild($language);
+			$otherTitle->appendChild($titleName);
+			$otherTitle->appendChild($titleType);
+			$otherTitles->appendChild($otherTitle);
+
+			$documentNode->documentElement->appendChild($otherTitles);
+		}
+
+		return $documentNode;
+	}
+
+	function createAvailability($documentNode)
+	{
+
+		$availability = $documentNode->createElement("availability");
+		$availabilityType = $documentNode->createElement("availabilityType", "Download");
+		$availability->appendChild($availabilityType);
+		$documentNode->documentElement->appendChild($availability);
+
+		return $documentNode;
+
+	}
+
+	function createPublicationPlace($documentNode)
+	{
 
 		$request = Application::getRequest();
 		$press = $request->getPress();
@@ -294,39 +346,50 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 
 	}
 
-	function createPublisher($documentNode) {
+	function createDataURLs($documentNode, $object, $parent, $isSubmission)
+	{
 
 		$request = Application::getRequest();
 		$press = $request->getPress();
-		if ($this->getPlugin()->isDara()) {
-			$publisher = $documentNode->createElement("publisher");
-			$institution = $documentNode->createElement("institution");
-			$institutionName = $documentNode->createElement("institutionName", $press->getData('publisher'));
+		$urlPart = ($isSubmission == true) ? array($object->getId()) : array($parent->getId(), 'c' . $object->getId());
 
-			$institution->appendChild($institutionName);
-			$publisher->appendChild($institution);
-		}else{
-			$publisher = $documentNode->createElement("publisher",$press->getData('publisher'));
+		$testUrl = $this->getPlugin()->getSetting($press->getId(), "testUrl");
+
+		$host = ($this->getPlugin()->isTestMode($press)) ? $testUrl : Request::url($press->getPath());
+
+		$dataURLPath = implode("/", array($host, 'catalog', 'book', $object->getId()));
+
+		$dataURLs = $documentNode->createElement("dataURLs");
+		$dataURL = $documentNode->createElement("dataURL", $dataURLPath);
+		$dataURLs->appendChild($dataURL);
+		$documentNode->documentElement->appendChild($dataURLs);
+
+		return $documentNode;
+
+	}
+
+	function createDoiProposal($documentNode, $object)
+	{
+
+		$request = Application::getRequest();
+		$press = $request->getPress();
+		$pubId = $object->getData('pub-id::doi');
+
+		if (isset($pubId)) {
+			if ($this->getPlugin()->isTestMode($press)) {
+				$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this->getPlugin()->getSetting($press->getId(), "testPrefix"), $pubId);
+			}
+			$doiProposal = $documentNode->createElement("doiProposal", $pubId);
+			$documentNode->documentElement->appendChild($doiProposal);
+
+
 		}
 
-		$documentNode->documentElement->appendChild($publisher);
-
 		return $documentNode;
-
 	}
 
-	function createAvailability($documentNode) {
-
-		$availability = $documentNode->createElement("availability");
-		$availabilityType = $documentNode->createElement("availabilityType", "Download");
-		$availability->appendChild($availabilityType);
-		$documentNode->documentElement->appendChild($availability);
-
-		return $documentNode;
-
-	}
-
-	function createRelationsOfChildren($documentNode, $object) {
+	function createRelationsOfChildren($documentNode, $object)
+	{
 
 		$request = Application::getRequest();
 		$press = $request->getPress();
@@ -341,7 +404,7 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 			if (isset($pubId)) {
 
 				if ($this->getPlugin()->isTestMode($press)) {
-					$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this-$this->getPlugin()->getDataciteAPITestPrefix(), $pubId);
+					$pubId = preg_replace('/^[\d]+(.)[\d]+/', $this - $this->getPlugin()->getDataciteAPITestPrefix(), $pubId);
 				}
 				$relation = $documentNode->createElement("relation");
 				$identifier = $documentNode->createElement("identifier", $pubId);
@@ -366,7 +429,8 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		return $documentNode;
 	}
 
-	function createRelationsOfParent($documentNode, $parent) {
+	function createRelationsOfParent($documentNode, $parent)
+	{
 
 		$request = Application::getRequest();
 		$press = $request->getPress();
@@ -394,12 +458,14 @@ class DataciteExportDeployment extends PKPImportExportDeployment {
 		}
 	}
 
-	function getContext() {
+	function getContext()
+	{
 
 		return $this->_context;
 	}
 
-	function setContext($context) {
+	function setContext($context)
+	{
 
 		$this->_context = $context;
 	}

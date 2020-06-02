@@ -2,9 +2,11 @@
 
 import('lib.pkp.controllers.list.submissions.SelectSubmissionsListHandler');
 
-class DataciteQueuedListHandler extends SelectSubmissionsListHandler {
+class DataciteQueuedListHandler extends SelectSubmissionsListHandler
+{
 
-	public function getItems() {
+	public function getItems()
+	{
 
 		$request = Application::getRequest();
 		$context = $request->getContext();
@@ -16,14 +18,15 @@ class DataciteQueuedListHandler extends SelectSubmissionsListHandler {
 				'request' => $request,
 			);
 			foreach ($submissions as $submission) {
-					$items[] = $submissionService->getBackendListProperties($submission, $propertyArgs);
-					}
+				$items[] = $submissionService->getBackendListProperties($submission, $propertyArgs);
+			}
 		}
 
 		return $items;
 	}
 
-	public function init($args = array()) {
+	public function init($args = array())
+	{
 
 		$this->_inputName = isset($args['inputName']) ? $args['inputName'] : $this->_inputName;
 	}
