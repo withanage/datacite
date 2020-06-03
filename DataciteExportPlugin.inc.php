@@ -240,18 +240,17 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 		if ($this->isDara()) {
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
+			$response = curl_exec($curlCh);
 		} else {
 			$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, false);
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
-			curl_exec($curlCh);
+			$response = curl_exec($curlCh);
 			$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
+			curl_exec($curlCh);
 		}
 
 		$result = true;
-
-
-		$response = curl_exec($curlCh);
 		$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
 		if (!in_array($status, DATACITE_API_RESPONSE_OK)) {
 			$result = array(array('plugins.importexport.common.register.error.mdsError', $response));
