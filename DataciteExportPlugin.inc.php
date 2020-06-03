@@ -328,6 +328,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 		$notificationManager = new NotificationManager();
 		foreach ($responses as $submission => $error) {
 			$result = json_decode(str_replace("\n", "", $error), true);
+
 			if ($result["errors"]) {
 				if ($this->isDara()) {
 					$detail = $result["errors"]["detail"];
@@ -335,7 +336,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 					$notification .= str_replace('"', '', $detail);
 				}
 				else {
-					$detail =  implode(",",$result );
+					$detail = $result["errors"][0]["title"];
 				}
 				$success = 0;
 				self::writeLog($submission . " ::  " . $detail, 'ERROR');
