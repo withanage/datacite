@@ -243,9 +243,9 @@ class DataciteExportPlugin extends ImportExportPlugin
 		} else {
 			$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, false);
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
+			curl_exec($curlCh);
 			$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
-			$response = curl_exec($curlCh);
 		}
 
 		$result = true;
