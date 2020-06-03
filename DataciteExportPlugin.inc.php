@@ -215,6 +215,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 		$url = Request::url($press->getPath(), 'catalog', 'book', array($object->getId()));
 		assert(!empty($url));
 		$curlCh = curl_init();
+		curl_setopt($curlCh, CURLOPT_VERBOSE, true);
 		if ($httpProxyHost = Config::getVar('proxy', 'http_host')) {
 			curl_setopt($curlCh, CURLOPT_PROXY, $httpProxyHost);
 			curl_setopt($curlCh, CURLOPT_PROXYPORT, Config::getVar('proxy', 'http_port', '80'));
@@ -237,6 +238,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 		$payload = file_get_contents($filename);
 		assert($payload !== false && !empty($payload));
 		curl_setopt($curlCh, CURLOPT_URL, $api);
+
 
 		if ($this->isDara()) {
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
@@ -327,7 +329,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 		foreach ($responses as $submission => $error) {
 			$result = json_decode(str_replace("\n", "", $error), true);
 
-			if ($result["errors"]) {
+			if (isset($result["errors"])) {
 				if ($this->isDara()) {
 					$detail = $result["errors"]["detail"];
 					$notification .= str_replace('"', '', $detail);
