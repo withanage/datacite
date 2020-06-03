@@ -332,7 +332,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 			if ($result["errors"]) {
 				if ($this->isDara()) {
 					$detail = $result["errors"]["detail"];
-					$status = $result["errors"]["stauts"];
 					$notification .= str_replace('"', '', $detail);
 				}
 				else {
@@ -340,7 +339,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 				}
 				$success = 0;
 				self::writeLog($submission . " ::  " . $detail, 'ERROR');
-				$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $notification));
+				$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => $detail));
 			}
 		}
 
