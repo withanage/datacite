@@ -6,6 +6,9 @@ import('plugins.importexport.datacite.DataciteExportDeployment');
 define('DATACITE_API_RESPONSE_OK', array(200, 201, 302, 422));
 
 define('DATACITE_API_REGISTRY', 'https://datacite.org');
+define('DATACITE_MDS_REGISTRY', 'https://mds.datacite.org/metadata/');
+define('DATACITE_MDS_TEST__REGISTRY', 'https://mds.test.datacite.org/metadata/');
+
 
 class DataciteExportPlugin extends ImportExportPlugin
 {
@@ -175,7 +178,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 				$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId, $press, '.xml');
 				$exportXml = $DOMDocument->saveXML();
 				$fileManager->writeFile($exportFileName, $exportXml);
-				$response = $this->depositXML($submission, $press, $exportFileName, true);
+				$response = $this->depositXML($submission, $exportFileName, true);
 				$result[$submissionId] = ($response != "") ? $response : "";
 				$fileManager->deleteByPath($exportFileName);
 			}
@@ -190,7 +193,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 					$exportFileName = $this->getExportFileName($this->getExportPath(), 'datacite-' . $submissionId . 'c' . $chapter->getId(), $press, '.xml');
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
-					$response = $this->depositXML($chapter, $press, $exportFileName, false);
+					$response = $this->depositXML($chapter, $exportFileName, false);
 					$result[$submissionId . ".c" . $chapter->getId()] = ($response != "") ? $chapter->getTitle() . " : " . $response : '';
 					$fileManager->deleteByPath($exportFileName);
 				}
@@ -200,22 +203,30 @@ class DataciteExportPlugin extends ImportExportPlugin
 		return $result;
 	}
 
-	function depositXML($object, $press, $filename, $isSubmission)
+	function depositXML($object, $filename, $isSubmission)
 	{
 
-		$username = $this->getSetting($press->getId(), 'username');
-		$password = $this->getSetting($press->getId(), 'password');
-		$api = $this->getSetting($press->getId(), 'api');
+
 		$doi = $object->getData('pub-id::doi');
 		$request = Application::getRequest();
+		$press = $request->getPress();
+
 		assert(!empty($doi));
 		if ($this->isTestMode($press)) {
 			$doi = $this->createTestDOI($request, $doi);
 		}
+
 		$url = Request::url($press->getPath(), 'catalog', 'book', array($object->getId()));
 		assert(!empty($url));
+
 		$curlCh = curl_init();
-		curl_setopt($curlCh, CURLOPT_VERBOSE, true);
+
+
+		$username = $this->getSetting($press->getId(), 'username');
+		$api = $this->getSetting($press->getId(), 'api');
+		$password = $this->getSetting($press->getId(), 'password');
+
+
 		if ($httpProxyHost = Config::getVar('proxy', 'http_host')) {
 			curl_setopt($curlCh, CURLOPT_PROXY, $httpProxyHost);
 			curl_setopt($curlCh, CURLOPT_PROXYPORT, Config::getVar('proxy', 'http_port', '80'));
@@ -223,55 +234,57 @@ class DataciteExportPlugin extends ImportExportPlugin
 				curl_setopt($curlCh, CURLOPT_PROXYUSERPWD, $username . ':' . Config::getVar('proxy', 'password'));
 			}
 		}
-		curl_setopt($curlCh, CURLOPT_RETURNTRANSFER, true);
 		if ($this->isDara()) {
 			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Accept: application/json'));
 			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/xml;charset=UTF-8'));
 		} else {
-			curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/vnd.api+json'));
+			if(array_key_exists('redeposit', $request->getUserVars())){
+				if ($request->getUserVar('redeposit')==1){
+					$api = ($this->isTestMode($press)) ? DATACITE_MDS_TEST__REGISTRY.$doi : DATACITE_MDS_REGISTRY.$doi;
+					curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: text/plain;charset=UTF-8'));
+				}
+			}
+			else {
+				curl_setopt($curlCh, CURLOPT_HTTPHEADER, array('Content-Type: application/vnd.api+json'));
+			}
 
 		}
+
+		curl_setopt($curlCh, CURLOPT_VERBOSE, true);
+		curl_setopt($curlCh, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curlCh, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($curlCh, CURLOPT_USERPWD, "$username:$password");
 		curl_setopt($curlCh, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curlCh, CURLOPT_URL, $api);
+
 		assert(is_readable($filename));
 		$payload = file_get_contents($filename);
 		assert($payload !== false && !empty($payload));
-		curl_setopt($curlCh, CURLOPT_URL, $api);
 
 
 		if ($this->isDara()) {
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
 			$response = curl_exec($curlCh);
 		} else {
-
-			$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
-			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
+			if(array_key_exists('redeposit', $request->getUserVars())){
+				if ($request->getUserVar('redeposit')==1) {
+					curl_setopt($curlCh, CURLOPT_PUT, true);
+					curl_setopt($curlCh, CURLOPT_INFILE, $filename);
+				}
+			} else {
+				$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
+				curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
+			}
 			$response = curl_exec($curlCh);
 
 		}
 
-		$result = true;
+
 		$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
-		if (!in_array($status, DATACITE_API_RESPONSE_OK)) {
-			$result = array(array('plugins.importexport.common.register.error.mdsError', $response));
-		}
-
-
 		curl_close($curlCh);
-		if ($result === true) {
-			if ($this->isTestMode($press)) {
-				$doi = $this->createTestDOI($request, $doi);
-			}
-			$object->setData('pub-id::publisher-id', $doi);
-			if ($isSubmission) {
-				$submissionDao = Application::getSubmissionDAO();
-				$submissionDao->updateObject($object);
-			} else {
-				$chapterDao = DAORegistry::getDAO('ChapterDAO');
-				$chapterDao->updateObject($object);
-			}
-		}
+
+
+		$this->setDOI($object, $isSubmission, $status, $response, $press, $request, $doi);
 
 		return $response;
 	}
@@ -415,6 +428,31 @@ class DataciteExportPlugin extends ImportExportPlugin
 	{
 
 		fatalError('Not implemented.');
+	}
+
+
+	private function setDOI($object, $isSubmission, $status, $response, $press,  $request, $doi): void
+
+	{
+		$result = true;
+		if (!in_array($status, DATACITE_API_RESPONSE_OK)) {
+			$result = array(array('plugins.importexport.common.register.error.mdsError', $response));
+		}
+
+
+		if ($result === true) {
+			if ($this->isTestMode($press)) {
+				$doi = $this->createTestDOI($request, $doi);
+			}
+			$object->setData('pub-id::publisher-id', $doi);
+			if ($isSubmission) {
+				$submissionDao = Application::getSubmissionDAO();
+				$submissionDao->updateObject($object);
+			} else {
+				$chapterDao = DAORegistry::getDAO('ChapterDAO');
+				$chapterDao->updateObject($object);
+			}
+		}
 	}
 
 }
