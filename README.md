@@ -38,8 +38,9 @@ git clone https://github.com/withanage/datacite
 
 #### Usage
 ![usage](www/usage.gif)
+
 ####  Credits
 
-* Main Developer and Designer
+Main Developer and Designer
 
 [https://github.com/withanage](https://github.com/withanage)

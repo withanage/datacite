@@ -130,7 +130,7 @@
                                         <li class="pkpListPanelItem pkpListPanelItem--submission pkpListPanelItem--hasSummary">
                                             <div class="pkpListPanelItem__summary -pkpClearfix">
                                                 <div class="pkpListPanelItem--submission__item">
-                                                    <a href="{$plugin}/export?submission={$item["id"]}" class=""><div class="pkpListPanelItem--submission__id"><span aria-hidden="false" class="fa fa-angle-up"></span></div></a>
+                                                    <a href="{$plugin}/export?submission={$item["id"]}&redeposit=1" class=""><div class="pkpListPanelItem--submission__id"><span aria-hidden="false" class="fa fa-angle-up"></span></div></a>
                                                     <div class="pkpListPanelItem--submission__reviewerWorkflowLink"><span
                                                                 class="-screenReader">ID</span>
                                                         {$item["id"]}
