@@ -357,7 +357,8 @@ class DataciteExportPlugin extends ImportExportPlugin
 		}
 
 		if ($success == 1) {
-			$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => "Succesfully deposited"));
+			$detail = (strpos( implode($responses),'OK') !== false)?  implode($responses): "Succesfully deposited" ;
+			$notificationManager->createTrivialNotification($request->getUser()->getId(), NOTIFICATION_TYPE_SUCCESS, array('contents' => $detail));
 		}
 	}
 
