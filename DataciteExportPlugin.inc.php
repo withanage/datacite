@@ -273,12 +273,13 @@ class DataciteExportPlugin extends ImportExportPlugin
 			} else {
 				$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
 				curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
+				self::writeLog( " ::  " . $datacitePayloadObject, 'ERROR');
 			}
 			$response = curl_exec($curlCh);
 
 		}
 
-		self::writeLog( " ::  " . $payload, 'ERROR');
+
 		$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
 		curl_close($curlCh);
 
