@@ -273,9 +273,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 			} else {
 				$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
 				curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
-				if ($this->isDara()==false) {
-					self::writeLog(" :: " . $this->isDara(), 'ERROR');
-				}
 			}
 			$response = curl_exec($curlCh);
 
