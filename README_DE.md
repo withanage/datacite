@@ -3,6 +3,8 @@
 ###### Einleitung
 Dieses Plugin registriert DOIS für Mongraphen, Sammelbände und Kapitel für den DOI-Anbieter [Datacite.org](https://datacite.org).
 
+Die aktuelle Schema-Version ist [4.3] (https://support.datacite.org/docs/datacite-metadata-schema-43).
+
 Darüber hinaus unterstützt es die [da|ra](https://www.da-ra.de/home/) -Registrierung, einen in Deutschland ansässigen  DOI-Registrierungsservice .
 
 Übersetzungen verfügbar in: [Englisch](README.md)

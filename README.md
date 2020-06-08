@@ -3,9 +3,12 @@
 #### Introduction
 This plugin registers DOIS for monographs and chapters  for DOI provider [Datacite.org](https://datacite.org).
 
+Current Schema version is [4.3](https://support.datacite.org/docs/datacite-metadata-schema-43)
+
 Additionally it supports [da|ra](https://www.da-ra.de/home/) registration;  Germany based Datacite DOI registration agency.
 
-Translations avaliable in : [German](README_DE.md)
+
+Translations available in : [German](README_DE.md)
 
 ####  Installation
 ```bash
