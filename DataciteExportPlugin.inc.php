@@ -194,7 +194,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 					$exportXml = $DOMDocumentChapter->saveXML();
 					$fileManager->writeFile($exportFileName, $exportXml);
 					$response = $this->depositXML($chapter, $exportFileName, false);
-					$result[$submissionId . ".c" . $chapter->getId()] = ($response != "") ? $chapter->getTitle() . " : " . $response : '';
+					$result[$submissionId . ".c" . $chapter->getId()] = ($response != "") ? implode($chapter->getTitle()) . " : " . $response : '';
 					$fileManager->deleteByPath($exportFileName);
 				}
 			}
@@ -258,7 +258,9 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 		assert(is_readable($filename));
 		$payload = file_get_contents($filename);
+
 		assert($payload !== false && !empty($payload));
+		$fp = fopen ($filename, "r");
 
 		curl_setopt($curlCh, CURLOPT_VERBOSE, false);
 		if ($this->isDara()) {
@@ -268,7 +270,8 @@ class DataciteExportPlugin extends ImportExportPlugin
 			if (array_key_exists('redeposit', $request->getUserVars())) {
 				if ($request->getUserVar('redeposit') == 1) {
 					curl_setopt($curlCh, CURLOPT_PUT, true);
-					curl_setopt($curlCh, CURLOPT_INFILE, $filename);
+					curl_setopt($curlCh, CURLOPT_INFILE, $fp);
+
 				}
 			} else {
 				$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
@@ -278,9 +281,9 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 		}
 
-
 		$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
 		curl_close($curlCh);
+		fclose($fp);
 
 
 		$this->setDOI($object, $isSubmission, $status, $response, $press, $request, $doi);
