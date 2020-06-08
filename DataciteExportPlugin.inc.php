@@ -273,7 +273,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 			} else {
 				$datacitePayloadObject = $this->createDatacitePayload($object, $url, $payload, true);
 				curl_setopt($curlCh, CURLOPT_POSTFIELDS, $datacitePayloadObject);
-				self::writeLog( " ::  " . $datacitePayloadObject, 'ERROR');
+				self::writeLog( " ::  " . $username." ".$password." ", 'ERROR');
 			}
 			$response = curl_exec($curlCh);
 
