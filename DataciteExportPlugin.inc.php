@@ -3,7 +3,7 @@
 
 import('lib.pkp.classes.plugins.ImportExportPlugin');
 import('plugins.importexport.datacite.DataciteExportDeployment');
-define('DATACITE_API_RESPONSE_OK', array(200, 201, 302, 422));
+define('DATACITE_API_RESPONSE_OK', array(200, 201, 302, 422,403));
 
 define('DATACITE_API_REGISTRY', 'https://datacite.org');
 define('DATACITE_MDS_REGISTRY', 'https://mds.datacite.org/metadata/');
