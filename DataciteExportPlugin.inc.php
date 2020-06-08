@@ -260,7 +260,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 		$payload = file_get_contents($filename);
 		assert($payload !== false && !empty($payload));
 
-		curl_setopt($curlCh, CURLOPT_VERBOSE, true);
+		curl_setopt($curlCh, CURLOPT_VERBOSE, false);
 		if ($this->isDara()) {
 			curl_setopt($curlCh, CURLOPT_POSTFIELDS, $payload);
 			$response = curl_exec($curlCh);
@@ -278,7 +278,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 		}
 
-
+		self::writeLog( " ::  " . $payload, 'ERROR');
 		$status = curl_getinfo($curlCh, CURLINFO_HTTP_CODE);
 		curl_close($curlCh);
 
