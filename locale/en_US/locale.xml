@@ -16,7 +16,7 @@
 	<message key="plugins.importexport.datacite.settings.form.dara"><![CDATA[ Use <a href="https://www.da-ra.de">da|ra</a>  as DOI provider]]></message>
 	<message key="plugins.importexport.datacite.settings.form.testUrl">Test Url</message>
 	<message key="plugins.importexport.datacite.settings.form.password">Password</message>
-	<message key="plugins.importexport.datacite.settings.form.password.description"></message>
+	<message key="plugins.importexport.datacite.settings.form.password.description"> </message>
 	<message key="plugins.importexport.datacite.settings.form.url">Datacite URL</message>
 	<message key="plugins.importexport.datacite.settings.form.username">Username (symbol)</message>
 	<message key="plugins.importexport.datacite.settings.form.usernameRequired">Please enter the username (symbol) you got from DataCite. The username may not contain colons.</message>
@@ -29,4 +29,23 @@
 	<message key="plugins.importexport.datacite.settings.form.testUrl">Test URL</message>
 	<message key="plugins.importexport.datacite.senderTask.name">DataCite automatic registration task</message>
 	<message key="plugins.importexport.datacite.cliUsage"><![CDATA[Usage: {$scriptName} {$pluginName} export [outputFileName] [journal_path] {issues|articles|galleys} objectId1 [objectId2] ... {$scriptName} {$pluginName} register [journal_path] {issues|articles|galleys} objectId1 [objectId2] ...]]></message>
+	<message key="plugins.importexport.datacite.tab.monographs">Monographs / Chapters</message>
+	<message key="plugins.importexport.datacite.status.registered">Deposited</message>
+	<message key="plugins.importexport.datacite.status.markedregistered">Marked registered</message>
+	<message key="plugins.importexport.datacite.status.todeposit">Not Deposited</message>
+	<message key="plugins.importexport.datacite.status.any">Any Status</message>
+	<message key="plugins.importexport.datacite.table.status">Status</message>
+	<message key="plugins.importexport.datacite.table.doi">DOI</message>
+	<message key="plugins.importexport.datacite.table.published">Published </message>
+	<message key="plugins.importexport.datacite.table.authortitle">Author; Title </message>
+	<message key="plugins.importexport.datacite.table.id">ID</message>
+	<message key="plugins.importexport.datacite.table.select">Select</message>
+	<message key="plugins.importexport.datacite.table.items">items</message>
+	<message key="plugins.importexport.datacite.table.of">of</message>
+	<message key="plugins.importexport.datacite.button.register">Register</message>
+	<message key="plugins.importexport.datacite.button.markRegistered">Mark registered</message>
+	<message key="plugins.importexport.datacite.error.mdsError">Registration was not successful! The DOI registration server returned an error: '{$param}'.</message>
+	<message key="plugins.importexport.datacite.search">Search</message>
+	<message key="plugins.importexport.datacite.search.authors">Authors</message>
+	<message key="plugins.importexport.datacite.search.title">Title</message>
 </locale>
