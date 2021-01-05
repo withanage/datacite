@@ -1,4 +1,4 @@
-let paginationButtons, selectItemsPerPage, mainForm, grid, itemsCount;
+let paginationButtons, selectItemsPerPage, mainForm, grid, itemsCount, csrfToken;
 
 function changeDatacitePagination(page = 1, itemsPerPage = 10) {
 	let firstItem = (page * itemsPerPage) - itemsPerPage;
@@ -103,6 +103,12 @@ function bindCollapseButtonClick() {
 	});
 }
 
+function closeAllChapterTables() {
+	$('a.hide_extras').each(function () {
+		$(this).click();
+	});
+}
+
 $(document).ready(function () {
 	paginationButtons = $('.datacite-nav-button');
 	selectItemsPerPage = $('#selItemsPerPage');
@@ -140,6 +146,7 @@ $(document).ready(function () {
 			type: 'POST',
 			dataType: "html",
 			data: {
+				'csrfToken':$('input[name ="csrfToken"]').val(),
 				'isAjax':true,
 				'sel-search-type':$('#sel-search-type').val(),
 				'search-text':$('#search-text').val(),
@@ -155,6 +162,7 @@ $(document).ready(function () {
 					itemsCount = 0;
 				}
 				$('#datacite-page-count-items').html( itemsCount );
+				closeAllChapterTables();
 				changeDatacitePaginationButton();
 				changeDatacitePagination();
 				bindCollapseButtonClick();
@@ -166,6 +174,7 @@ $(document).ready(function () {
 			}
 		});
 	});
+
 	paginationButtons.click(function () {
 		let buttonValue = $(this).val();
 		let itemsPerPage = parseInt(selectItemsPerPage.val());
@@ -191,19 +200,20 @@ $(document).ready(function () {
 			buttonValue = totalPages
 		}
 
+		closeAllChapterTables();
 		changeDatacitePagination(parseInt(buttonValue), itemsPerPage);
 		changeDatacitePaginationButton(parseInt(buttonValue));
 	});
+
 	selectItemsPerPage.change(function () {
 
+		closeAllChapterTables();
 		let itemsPerPage = $('#selItemsPerPage').val();
 		changeDatacitePaginationButton();
-
 		let currentPage = $('#pageId').val();
 		changeDatacitePagination(parseInt(currentPage), parseInt(itemsPerPage));
 
 	});
-
 
 	$('#search-text').keydown(function(event) {
 		// noinspection JSUnresolvedVariable

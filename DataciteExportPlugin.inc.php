@@ -48,9 +48,34 @@ class DataciteExportPlugin extends ImportExportPlugin
 		parent::display( $args, $request );
 		$templateMgr = TemplateManager::getManager( $request );
 		$templateMgr->assign( 'plugin', $this->getName() );
+		$params = $request->getUserVars();
+
+		//CSRF Token Kontrolle
+		if( ( array_key_exists( 'isAjax', $params ) || !empty( $args[0]) )
+			&& !$request->checkCSRF() )
+		{
+			$args[0] = '';
+			$params['sel-search-type'] = 'title';
+			$params['search-text'] = '';
+			$params['sel-search-status'] = 'all';
+			$user = $request->getUser();
+			$userId = 'unknown';
+			if( NULL !== $user )
+			{
+				$userId = $user->getId();
+			}
+			$responses = array();
+			$responses[$userId] = array(
+				self::RESPONSE_KEY_STATUS  => '403',
+				self::RESPONSE_KEY_MESSAGE => 'CSRF Token is not valid.',
+				self::RESPONSE_KEY_TITLE   => '',
+				self::RESPONSE_KEY_ACTION  => 'CSRF',
+				self::RESPONSE_KEY_TYPE    => 'user',
+			);
+			$this->createNotifications( $request, $responses );
+		}
 
 		//Ajax
-		$params = $request->getUserVars();
 		if( array_key_exists( 'isAjax', $params ) && $params['isAjax'] === 'true' )
 		{
 			$filteredData = $this->filterData(
@@ -575,7 +600,8 @@ class DataciteExportPlugin extends ImportExportPlugin
 			->assign( 'itemsSizeQueue', count( $itemsQueue ) )
 			->assign( 'currentPage', 1 )
 			->assign( 'startItem', 1 )
-			->assign( 'endItem', self::PAGINATION_DEFAULT_ITEMS_PER_PAGE - 1 );
+			->assign( 'endItem', self::PAGINATION_DEFAULT_ITEMS_PER_PAGE - 1 )
+			->assign( 'csrfToken', $request->getSession()->getCSRFToken() );
 	}
 
 	/**

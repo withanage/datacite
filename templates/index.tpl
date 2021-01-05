@@ -31,6 +31,7 @@
 		</script>
 		<form class="pkp_form" id="dataciteSettingsForm" method="post"
 			  action="{plugin_url path="settings" verb="save"}">
+			{csrf}
 			{if $doiPluginSettingsLinkAction}
 				{fbvFormArea id="doiPluginSettingsLink"}
 				{fbvFormSection}
@@ -66,9 +67,7 @@
 				{rdelim});
 		</script>
 		<form id="queueXmlForm" class="pkp_form" action="{plugin_url path='export'}" method="post">
-			<script type="text/javascript">
-
-			</script>
+			{csrf}
 			<div id="datacitelistgrid" class="pkp_controllers_grid">
 				<div class="header">
 					<h4>{translate key='plugins.importexport.datacite.tab.monographs'}</h4>
@@ -370,7 +369,6 @@
 						</li>
 					</ul>
 				{/fbvFormSection}
-
 			</div>
 		</form>
 	</div>
