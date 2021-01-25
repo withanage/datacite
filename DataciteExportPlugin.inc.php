@@ -236,7 +236,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 				if( NULL !== $publisherID && !empty( $publisherID ) )
 				{
 					$publishedMonographDAO = new PublishedMonographDAO();
-					$publishedMonograph = $publishedMonographDAO->getBySubmissionId( $submissionId, $context );
+					$publishedMonograph = $publishedMonographDAO->getById( $submissionId, $context );
 					if( NULL !== $publishedMonograph )
 					{
 						$published = (string) $publishedMonograph->getData( 'datePublished' );
@@ -253,6 +253,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 				$chaptersList = $chapterDao->getChapters( $submissionId );
 				$chapters = $chaptersList->toAssociativeArray();
 				$chaptersData = array();
+				/** @var Chapter $chapter */
 				foreach( $chapters as $chapter )
 				{
 					$chapterPubId = $chapter->getData( 'pub-id::publisher-id' );
@@ -274,7 +275,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 					$chaptersData[] = array(
 						'chapterId'      => $chapter->getId(),
 						'chapterAuthors' => $chapter->getAuthorNamesAsString(),
-						'chapterTitle'   => $chapter->getLocalizedTitle( $locale ),
+						'chapterTitle'   => $chapter->getLocalizedTitle(),
 						'chapterPubId'   => ( $chapterPubId ) ?: '',
 						'chapterDoi'     => $chapter->getData( 'pub-id::doi' ),
 						'chapterPubDate' => $chapterPubDate,
@@ -478,8 +479,10 @@ class DataciteExportPlugin extends ImportExportPlugin
 			{
 				$html .= ' datacite-hide-row">';
 			}
+
+			$arrowClass = ( count( $item['chapters'] ) < 1 ) ? ' datacite-hidden' : '';
 			$html .= '<td class="first_column">'
-				. '<a href="#" class="show_extras dropdown-' . $item['id'] . '"></a>'
+				. '<a href="#" class="show_extras dropdown-' . $item['id'] . $arrowClass . '"></a>'
 				. '<label for="select-' . $item['id'] . '"></label>'
 				. '<input type="checkbox" id="select-' . $item['id']
 				. '" name="selectedSubmissions[]" style="height: 15px; width: 15px;" value="' . $item['id']

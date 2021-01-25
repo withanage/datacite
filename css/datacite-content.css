@@ -42,6 +42,11 @@ input[type="checkbox"]:disabled
 	display: none;
 }
 
+.datacite-hidden
+{
+	visibility: hidden;
+}
+
 .datacite-nav-button
 {
 	padding: 7px 16px;

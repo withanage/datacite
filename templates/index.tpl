@@ -185,7 +185,7 @@
 								{/if}
 									">
 								<td class="first_column">
-									<a href="#" class="show_extras dropdown-{$item['id']}"></a>
+									<a href="#" class="show_extras dropdown-{$item['id']} {if $item['chapters']|@count < 1} datacite-hidden{/if}"></a>
 									<label for="select-{$item['id']}"></label>
 									<input type="checkbox" id="select-{$item['id']}" name="selectedSubmissions[]" style="height: 15px; width: 15px;" value="{$item['id']}" class="submissionCheckbox"
 										{if empty($item['doi']) || $item['status'] === 'markedRegistered'}
@@ -359,17 +359,17 @@
 						</div>
 					</div>
 				{/fbvFormSection}
-				{fbvFormSection}
-					<ul class="export_actions">
-						<li class="export_action">
-							{fbvElement type="submit" label="plugins.importexport.datacite.button.register" id="deposit" name="deposit" value="1" class="deposit" translate=true inline=true}
-						</li>
-						<li class="export_action">
-							{fbvElement type="submit" label="plugins.importexport.datacite.button.markRegistered" id="markRegistered" name="markRegistered" value="1" class="markRegistered" translate=true inline=true}
-						</li>
-					</ul>
-				{/fbvFormSection}
 			</div>
+			{fbvFormSection}
+				<ul class="export_actions">
+					<li class="export_action">
+						{fbvElement type="submit" label="plugins.importexport.datacite.button.register" id="deposit" name="deposit" value="1" class="deposit" translate=true inline=true}
+					</li>
+					<li class="export_action">
+						{fbvElement type="submit" label="plugins.importexport.datacite.button.markRegistered" id="markRegistered" name="markRegistered" value="1" class="markRegistered" translate=true inline=true}
+					</li>
+				</ul>
+			{/fbvFormSection}
 		</form>
 	</div>
 	<script>
