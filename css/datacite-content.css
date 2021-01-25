@@ -1,0 +1,106 @@
+.datacite-table
+{
+	table-layout : fixed;
+}
+
+.datacite-ellipsis
+{
+	display       : block;
+	overflow-x    : hidden;
+	text-overflow : ellipsis;
+	white-space   : nowrap;
+}
+
+.datacite-authors
+{
+	font-weight : bolder;
+}
+
+.datacite-break-word
+{
+	word-wrap : break-word;
+}
+
+input[type="checkbox"]:disabled
+{
+	cursor: not-allowed;
+}
+
+.gridItemsPerPage label
+{
+	font-size: 14px;
+	font-weight: 400;
+}
+
+.datacite-show-row
+{
+	display: table-row;
+}
+
+.datacite-hide
+{
+	display: none;
+}
+
+.datacite-hidden
+{
+	visibility: hidden;
+}
+
+.datacite-nav-button
+{
+	padding: 0 0.5em 0 0.5em;
+	vertical-align: middle;
+	background-color: #FFFFFF;
+	border: 1px solid #ddd;
+	border-radius: 2px;
+	box-shadow: 0 1px 0 #ddd;
+	font-size: .875rem;
+	font-weight: 700;
+	line-height: 2rem;
+	color: #006798;
+	cursor: pointer;
+	text-decoration: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-appearance: none;
+}
+
+.datacite-nav-button:hover,
+.datacite-nav-button:focus
+{
+	color: #006798;
+	border-color: #006798;
+}
+
+
+#pageId
+{
+	color: #fff;
+	background: #006798;
+	border-color: #006798;
+	box-shadow: 0 1px 0 #006798;
+}
+
+#pageId:hover,
+#pageId:focus
+{
+	background: #008acb;
+	color: #fff;
+	border-color: #006798;
+	box-shadow: 0 1px 0 #006798;
+}
+
+#datacite-filter-form
+{
+	border-bottom: 1px solid #eee;
+}
+
+body.waiting,
+body.waiting a:hover,
+body.waiting *
+{
+	cursor: wait !important;
+}
