@@ -52,7 +52,7 @@
 					);
 					{rdelim});
 			</script>
-			<form id="queueXmlForm" class="pkp_form" action="{plugin_url path='export'}" method="post">
+			<form id="datacite-queueXmlForm" class="pkp_form" action="{plugin_url path='export'}" method="post">
 				{csrf}
 				<div id="datacitelistgrid" class="pkp_controllers_grid">
 					<div class="header">
@@ -84,7 +84,7 @@
 							{fbvFormSection}
 								<div class="pkp_helpers_quarter inline">
 									<label>
-										<select name="sel-search-type" id="sel-search-type">
+										<select name="datacite-sel-search-type" id="datacite-sel-search-type">
 											<option value="title">
 												{translate key='plugins.importexport.datacite.search.title'}
 											</option>
@@ -95,15 +95,15 @@
 									</label>
 								</div>
 								<div class="pkp_helpers_half inline">
-									<label for="search-text"></label>
-									<input type="search" class="field text" name="search-text" value="" id="search-text">
+									<label for="datacite-search-text"></label>
+									<input type="search" class="field text" name="datacite-search-text" value="" id="datacite-search-text">
 									<span></span>
 								</div>
 							{/fbvFormSection}
 							{fbvFormSection}
 								<div class="pkp_helpers_quarter inline">
 									<label>
-										<select name="sel-search-status" id="sel-search-status">
+										<select name="datacite-sel-search-status" id="datacite-sel-search-status">
 											<option value="all" selected="selected">
 												{translate key='plugins.importexport.datacite.status.any'}
 											</option>
@@ -311,7 +311,7 @@
 						<div class="gridPaging">
 							<div class="gridItemsPerPage">
 								<label>{translate key='common.itemsPerPage'}:
-									<select id="selItemsPerPage" class="itemsPerPage">
+									<select id="datacite-selItemsPerPage" class="itemsPerPage">
 										<option value="10">10</option>
 										<option value="25">25</option>
 										<option value="50">50</option>
@@ -324,23 +324,23 @@
 								<span id="datacite-page-start">{$startItem}</span> -
 								<span id="datacite-page-end">{$endItem}</span> {translate key='plugins.importexport.datacite.table.of'}
 								<span id="datacite-page-count-items">{$itemsSizeQueue}</span> {translate key='plugins.importexport.datacite.table.items'}
-								<input type="button" id="firstPageId" name="firstPageId" class="datacite-nav-button"
+								<input type="button" id="datacite-firstPageId" name="firstPageId" class="datacite-nav-button"
 									   value="<<">
-								<input type="button" id="prevPageId" name="prevPageId" class="datacite-nav-button"
+								<input type="button" id="datacite-prevPageId" name="prevPageId" class="datacite-nav-button"
 									   value="<">
-								<input type="button" id="pageId-2" name="pageId-2" class="datacite-nav-button"
+								<input type="button" id="datacite-pageId-2" name="pageId-2" class="datacite-nav-button"
 									   value="{$currentPage - 2}">
-								<input type="button" id="pageId-1" name="pageId-1" class="datacite-nav-button"
+								<input type="button" id="datacite-pageId-1" name="pageId-1" class="datacite-nav-button"
 									   value="{$currentPage - 1}">
-								<input type="button" id="pageId" name="pageId" class="datacite-nav-button"
+								<input type="button" id="datacite-pageId" name="pageId" class="datacite-nav-button"
 									   value="{$currentPage}">
-								<input type="button" id="pageIdPlus1" name="pageIdPlus1" class="datacite-nav-button"
+								<input type="button" id="datacite-pageIdPlus1" name="pageIdPlus1" class="datacite-nav-button"
 									   value="{$currentPage + 1}">
-								<input type="button" id="pageIdPlus2" name="pageIdPlus2" class="datacite-nav-button"
+								<input type="button" id="datacite-pageIdPlus2" name="pageIdPlus2" class="datacite-nav-button"
 									   value="{$currentPage +2}">
-								<input type="button" id="nextPageId" name="nextPageId" class="datacite-nav-button"
+								<input type="button" id="datacite-nextPageId" name="nextPageId" class="datacite-nav-button"
 									   value=">">
-								<input type="button" id="lastPageId" name="lastPageId" class="datacite-nav-button"
+								<input type="button" id="datacite-lastPageId" name="lastPageId" class="datacite-nav-button"
 									   value=">>">
 							</div>
 						</div>

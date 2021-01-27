@@ -76,7 +76,7 @@ input[type="checkbox"]:disabled
 }
 
 
-#pageId
+#datacite-pageId
 {
 	color: #fff;
 	background: #006798;
@@ -84,8 +84,8 @@ input[type="checkbox"]:disabled
 	box-shadow: 0 1px 0 #006798;
 }
 
-#pageId:hover,
-#pageId:focus
+#datacite-pageId:hover,
+#datacite-pageId:focus
 {
 	background: #008acb;
 	color: #fff;
