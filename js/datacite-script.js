@@ -164,7 +164,7 @@ $(document).ready(function () {
 				$('#datacite-page-count-items').html( itemsCount );
 				closeAllChapterTables();
 				changeDatacitePaginationButton();
-				changeDatacitePagination();
+				changeDatacitePagination(1, parseInt( $('#selItemsPerPage').val() ) );
 				bindCollapseButtonClick();
 				$('body').removeClass('waiting');
 			},
