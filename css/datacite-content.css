@@ -1,0 +1,88 @@
+.datacite-table
+{
+	table-layout : fixed;
+}
+
+.datacite-ellipsis
+{
+	display       : block;
+	overflow-x    : hidden;
+	text-overflow : ellipsis;
+	white-space   : nowrap;
+}
+
+.datacite-authors
+{
+	font-weight : bolder;
+}
+
+.datacite-break-word
+{
+	word-wrap : break-word;
+}
+
+input[type="checkbox"]:disabled
+{
+	cursor: not-allowed;
+}
+
+.gridItemsPerPage label
+{
+	font-size: 14px;
+	font-weight: 400;
+}
+
+.datacite-show-row
+{
+	display: table-row;
+}
+
+.datacite-hide
+{
+	display: none;
+}
+
+.datacite-hidden
+{
+	visibility: hidden;
+}
+
+.datacite-nav-button
+{
+	padding: 7px 16px;
+	vertical-align: middle;
+	background-color: #eee;
+	background-image: linear-gradient(#eee, #ddd);
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.1),inset 0 1px 1px rgba(255,255,255,0.6);
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 16px;
+	color: rgba(0,0,0,0.84);
+	text-shadow: 0 2px 0 rgba(255,255,255,0.6);
+	cursor: pointer;
+	text-decoration: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-appearance: none;
+}
+
+#pageId
+{
+	background-color: #009de5;
+	background-image: linear-gradient(#19b7ff, #006999);
+	color: #fff;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.1),inset 0 1px 1px rgba(255,255,255,0.4);
+	text-shadow: 0 2px 0 rgba(0,0,0,0.2);
+	border-color: #007ab2;
+}
+
+body.waiting,
+body.waiting a:hover,
+body.waiting *
+{
+	cursor: wait !important;
+}
