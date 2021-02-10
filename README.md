@@ -47,3 +47,8 @@ git clone https://github.com/withanage/datacite
 Main Developer and Designer
 
 [https://github.com/withanage](https://github.com/withanage)
+
+Contributors
+
+-  [Christian Marsilius](https://github.com/nongenti)
+
