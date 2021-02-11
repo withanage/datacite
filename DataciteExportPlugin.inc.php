@@ -1223,7 +1223,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 	public function register( $category, $path, $mainContextId = NULL ) : bool
 	{
 
-		HookRegistry::register( 'PKPLocale::registerLocaleFile', array( &$this, 'addCustomLocale' ) );
 		HookRegistry::register( 'LoadComponentHandler', array( $this, 'setupGridHandler' ) );
 		HookRegistry::register(
 			'Templates::Management::Settings::website', array( $this, 'callbackShowWebsiteSettingsTabs' )
