@@ -43,6 +43,7 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 	//other
 	private const DATACITE_API_RESPONSE_OK = array( 200, 201 );
+	private const DATACITE_API_RESPONSE_DOI_HAS_ALREADY_BEEN_TAKEN = array( 422, 'This DOI has already been taken' );
 
 	#endregion
 
@@ -1002,6 +1003,37 @@ class DataciteExportPlugin extends ImportExportPlugin
 		{
 			$this->setDOI( $object, $isSubmission, $press, $doi );
 		}
+		elseif( self::DATACITE_API_RESPONSE_DOI_HAS_ALREADY_BEEN_TAKEN[0] === $status
+			&& strpos( $responseMessage, self::DATACITE_API_RESPONSE_DOI_HAS_ALREADY_BEEN_TAKEN[1] ) > -1
+		)
+		{
+			$this->setDOI( $object, $isSubmission, $press, $doi );
+			//Redeposite
+			$submissionDao = new SubmissionDAO();
+			/** @var Submission $submission */
+			$submission = $submissionDao->getById( $submissionId );
+			if( $isSubmission )
+			{
+				$submissionDao = new SubmissionDAO();
+				/** @var Submission $submission */
+				$submission = $submissionDao->getById( $submissionId );
+				$object = $submission;
+			}
+			else
+			{
+				$publication = $submission->getCurrentPublication();
+				if( NULL !== $publication )
+				{
+					$chapterDao = new ChapterDAO();
+					$publicationId = $publication->getId();
+					/** @var Chapter $object */
+					$chapter = $chapterDao->getChapter( $object->getId(), $publicationId );
+					$object = $chapter;
+				}
+			}
+
+			$this->depositXML( $object, $filename, $isSubmission, true, $submissionId );
+		}
 
 		return array(
 			self::RESPONSE_KEY_STATUS  => $status,
@@ -1117,7 +1149,9 @@ class DataciteExportPlugin extends ImportExportPlugin
 			if( NULL !== $publication )
 			{
 				$publication->setData( 'pub-id::publisher-id', $doi );
-				$this->updateObject( $publication );
+				/* @var $publicationDao PublicationDAO */
+				$publicationDao = DAORegistry::getDAO('PublicationDAO');
+				$publicationDao->updateObject( $publication );
 			}
 		}
 		else
@@ -1247,8 +1281,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 	public function register( $category, $path, $mainContextId = NULL ) : bool
 	{
-
-		HookRegistry::register( 'PKPLocale::registerLocaleFile', array( &$this, 'addCustomLocale' ) );
 		HookRegistry::register( 'LoadComponentHandler', array( $this, 'setupGridHandler' ) );
 		HookRegistry::register(
 			'Templates::Management::Settings::website', array( $this, 'callbackShowWebsiteSettingsTabs' )
