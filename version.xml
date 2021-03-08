@@ -12,8 +12,8 @@
 <version>
 	<application>datacite</application>
 	<type>plugins.importexport</type>
-	<release>1.0.0.0</release>
-	<date>2020-12-23/date>
+	<release>1.0.0.1</release>
+	<date>2021-03-08</date>
 	<lazy-load>1</lazy-load>
 	<class>DataciteExportPlugin</class>
 </version>
