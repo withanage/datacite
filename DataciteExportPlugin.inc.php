@@ -182,11 +182,10 @@ class DataciteExportPlugin extends ImportExportPlugin
 			$this->updateSetting( $contextId, 'api', $userVars['api'] );
 			$this->updateSetting( $contextId, 'daraMode', $userVars['daraMode'] );
 			$this->updateSetting( $contextId, 'username', $userVars['username'] );
-			$this->updateSetting( $contextId, 'password', $userVars['password'] );
-			$this->updateSetting( $contextId, 'testMode', $userVars['testMode'] );
-			$this->updateSetting( $contextId, 'testPrefix', $userVars['testPrefix'] );
-			$this->updateSetting( $contextId, 'testRegistry', $userVars['testRegistry'] );
-			$this->updateSetting( $contextId, 'testUrl', $userVars['testUrl'] );
+			if( NULL !== $userVars['password'] && !empty( $userVars['password'] ) )
+			{
+				$this->updateSetting( $contextId, 'password', $userVars['password'] );
+			}
 		}
 	}
 
