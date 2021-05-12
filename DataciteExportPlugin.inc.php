@@ -220,8 +220,10 @@ class DataciteExportPlugin extends ImportExportPlugin
 			$submissionId = $submission->getId();
 			$doi = $submission->getData( 'pub-id::doi' );
 
-			//Berücksichtige nur Submissions mit doi
-			if( NULL !== $doi && !empty( $doi ) )
+			$publishedMonographDAO = new PublishedMonographDAO();
+			$publishedMonograph = $publishedMonographDAO->getById( $submissionId, $context );
+
+			if( NULL !== $publishedMonograph )
 			{
 				$publisherID = $submission->getData( 'pub-id::publisher-id' );
 				$published = '-';
