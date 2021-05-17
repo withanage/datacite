@@ -205,7 +205,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 		$submissions = $submissionService->getSubmissions( $context->getId() );
 		$itemsQueue = [];
 
-		/** @noinspection PhpUndefinedClassInspection */
 		$locale = AppLocale::getLocale();
 		$contextPaths = $request->_router->_contextPaths;
 		$workflowPath = $request->_protocol . '://'
@@ -220,8 +219,11 @@ class DataciteExportPlugin extends ImportExportPlugin
 			$submissionId = $submission->getId();
 			$doi = $submission->getData( 'pub-id::doi' );
 
-			//Berücksichtige nur Submissions mit doi
-			if( NULL !== $doi && !empty( $doi ) )
+			/** @var PublishedMonographDAO $publishedMonographDao */
+			$publishedMonographDao = DAORegistry::getDAO('PublishedMonographDAO');
+			$publishedMonograph = $publishedMonographDao->getById($submissionId, NULL, FALSE);
+
+			if( $publishedMonograph && $publishedMonograph->getDatePublished() )
 			{
 				$publisherID = $submission->getData( 'pub-id::publisher-id' );
 				$published = '-';
@@ -234,17 +236,11 @@ class DataciteExportPlugin extends ImportExportPlugin
 				$isChapterPublicationDatesEnabled = FALSE;
 				if( NULL !== $publisherID && !empty( $publisherID ) )
 				{
-					$publishedMonographDAO = new PublishedMonographDAO();
-					$publishedMonograph = $publishedMonographDAO->getById( $submissionId, $context );
-					if( NULL !== $publishedMonograph )
-					{
-						$published = (string) $publishedMonograph->getData( 'datePublished' );
-						//Entfernen der Uhrzeit
-						$published = explode( ' ', $published );
-						$published = $published[0];
-						$isChapterPublicationDatesEnabled =
-							(bool) $publishedMonograph->getEnableChapterPublicationDates();
-					}
+					$published = (string) $publishedMonograph->getData( 'datePublished' );
+					//Entfernen der Uhrzeit
+					$published = explode( ' ', $published );
+					$published = $published[0];
+					$isChapterPublicationDatesEnabled = (bool) $publishedMonograph->getEnableChapterPublicationDates();
 				}
 
 				/** @var ChapterDAO $chapterDao */
@@ -377,7 +373,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 						$titles = array();
 						/** @var Submission $submission */
 						$submission = $item['submissionObject'];
-						/** @noinspection PhpUndefinedClassInspection */
 						$supportedLocales = AppLocale::getAllLocales();
 						$found = false;
 						//Zu erst wird nur des Submissiontitel durchsucht
@@ -640,7 +635,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 	{
 		/** @var MonographDAO $submissionDao */
 		$submissionDao = Application::getSubmissionDAO();
-		/** @noinspection PhpUndefinedClassInspection */
 		$locale = AppLocale::getLocale();
 		$request = Application::getRequest();
 		$context = $request->getContext();
@@ -681,7 +675,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 	{
 		/** @var ChapterDAO $chapterDao */
 		$chapterDao = DAORegistry::getDAO( 'ChapterDAO' );
-		/** @noinspection PhpUndefinedClassInspection */
 		$locale = AppLocale::getLocale();
 		$response = array();
 
@@ -715,7 +708,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 		return $response;
 	}
 
-	/** @noinspection PhpMissingReturnTypeInspection */
 	public function getRegistry( $press )
 	{
 		$registry = $this->getSetting( $press->getId(), 'api' );
@@ -738,7 +730,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 	{
 		/** @var MonographDAO $submissionDao */
 		$submissionDao = Application::getSubmissionDAO();
-		/** @noinspection PhpUndefinedClassInspection */
 		$locale = AppLocale::getLocale();
 		$request = Application::getRequest();
 		$press = $request->getPress();
@@ -802,7 +793,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 	{
 		/** @var MonographDAO $submissionDao */
 		$submissionDao = Application::getSubmissionDAO();
-		/** @noinspection PhpUndefinedClassInspection */
 		$locale = AppLocale::getLocale();
 		$request = Application::getRequest();
 		$press = $request->getPress();
@@ -890,7 +880,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 
 		if( $isSubmission )
 		{
-			/** @noinspection PhpUndefinedClassInspection */
 			$url = Request::url(
 				$press->getPath(),
 				'catalog',
@@ -900,7 +889,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 		}
 		else
 		{
-			/** @noinspection PhpUndefinedClassInspection */
 			$url = Request::url(
 				$press->getPath(),
 				'catalog',
@@ -1000,7 +988,6 @@ class DataciteExportPlugin extends ImportExportPlugin
 		return PKPString::regexp_replace( '#^[^/]+/#', $this->getDataciteAPITestPrefix() . '/', $doi );
 	}
 
-	/** @noinspection PhpMissingReturnTypeInspection */
 	public function getDataciteAPITestPrefix()
 	{
 		$request = Application::getRequest();
