@@ -236,17 +236,11 @@ class DataciteExportPlugin extends ImportExportPlugin
 				$isChapterPublicationDatesEnabled = FALSE;
 				if( NULL !== $publisherID && !empty( $publisherID ) )
 				{
-					$publishedMonographDAO = new PublishedMonographDAO();
-					$publishedMonograph = $publishedMonographDAO->getById( $submissionId, $context );
-					if( NULL !== $publishedMonograph )
-					{
-						$published = (string) $publishedMonograph->getData( 'datePublished' );
-						//Entfernen der Uhrzeit
-						$published = explode( ' ', $published );
-						$published = $published[0];
-						$isChapterPublicationDatesEnabled =
-							(bool) $publishedMonograph->getEnableChapterPublicationDates();
-					}
+					$published = (string) $publishedMonograph->getData( 'datePublished' );
+					//Entfernen der Uhrzeit
+					$published = explode( ' ', $published );
+					$published = $published[0];
+					$isChapterPublicationDatesEnabled = (bool) $publishedMonograph->getEnableChapterPublicationDates();
 				}
 
 				/** @var ChapterDAO $chapterDao */
