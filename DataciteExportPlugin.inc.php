@@ -207,8 +207,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 				if (NULL !== $publication) {
 					$doi = $publication->getData('pub-id::doi');
 
-					//Only submissions with doi
-					if (NULL !== $doi && !empty($doi)) {
+					if ($submission->getData('status') === STATUS_PUBLISHED) {
 						$publisherID = $publication->getData('pub-id::publisher-id');
 						$published = '-';
 						$currentStatus = $submission->getData(self::DEPOSIT_STATUS_FIELD_NAME);
@@ -217,7 +216,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 							$submission = $this->setInitialExportStatus($submission, $publisherID);
 						}
 						$isChapterPublicationDatesEnabled = FALSE;
-						if (NULL !== $publisherID && !empty($publisherID) && $publication->getData('status') === STATUS_PUBLISHED) {
+						if (NULL !== $publisherID && !empty($publisherID)) {
 							$published = (string) $publication->getData('datePublished');
 							//removing time
 							$published = explode(' ', $published);
