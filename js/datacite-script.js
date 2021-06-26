@@ -1,4 +1,4 @@
-let paginationButtons, selectItemsPerPage, mainForm, grid, itemsCount, csrfToken;
+let datacitePaginationButtons, dataciteSelectItemsPerPage, dataciteMainForm, dataciteGrid, dataciteItemsCount;
 
 function changeDatacitePagination(page = 1, itemsPerPage = 10) {
 	let firstItem = (page * itemsPerPage) - itemsPerPage;
@@ -7,12 +7,12 @@ function changeDatacitePagination(page = 1, itemsPerPage = 10) {
 	let endPageText;
 	let endPage = $('#datacite-page-end');
 
-	if( itemsCount > 0 )
+	if( dataciteItemsCount > 0 )
 	{
 		startPageText = firstItem + 1;
 	}
 
-	for (let i = 0; i < itemsCount; i++) {
+	for (let i = 0; i < dataciteItemsCount; i++) {
 		let row = $('#datacitelistgrid-row-' + i)
 		if (i < firstItem || i > lastItem) {
 			row.removeClass('datacite-show-row');
@@ -25,8 +25,8 @@ function changeDatacitePagination(page = 1, itemsPerPage = 10) {
 
 	startPageText = startPageText.toString();
 	$('#datacite-page-start').text(startPageText);
-	if (lastItem > itemsCount) {
-		endPage.text( String(itemsCount) );
+	if (lastItem > dataciteItemsCount) {
+		endPage.text( String(dataciteItemsCount) );
 	} else {
 		endPageText = (lastItem + 1).toString();
 		endPage.text(endPageText);
@@ -34,35 +34,35 @@ function changeDatacitePagination(page = 1, itemsPerPage = 10) {
 }
 
 function changeDatacitePaginationButton(currentPage = 1) {
-	let itemsPerPage = parseInt(selectItemsPerPage.val());
+	let itemsPerPage = parseInt(dataciteSelectItemsPerPage.val());
 	let totalPages = 1;
-	let pageMinus2 = $('#pageId-2');
-	let pageMinus1 = $('#pageId-1');
-	let pagePlus1 = $('#pageIdPlus1');
-	let pagePlus2 = $('#pageIdPlus2');
+	let pageMinus2 = $('#datacite-pageId-2');
+	let pageMinus1 = $('#datacite-pageId-1');
+	let pagePlus1 = $('#datacite-pageIdPlus1');
+	let pagePlus2 = $('#datacite-pageIdPlus2');
 
-	if(  itemsCount > 0 )
+	if(  dataciteItemsCount > 0 )
 	{
-		totalPages = Math.ceil(itemsCount / itemsPerPage);
+		totalPages = Math.ceil(dataciteItemsCount / itemsPerPage);
 	}
 
-	$('#pageId').val(currentPage.toString());
+	$('#datacite-pageId').val(currentPage.toString());
 	pageMinus2.val((currentPage - 2).toString());
 	pageMinus1.val((currentPage - 1).toString());
 	pagePlus1.val((currentPage + 1).toString());
 	pagePlus2.val((currentPage + 2).toString());
-	paginationButtons.removeClass('datacite-hide');
+	datacitePaginationButtons.removeClass('datacite-hide');
 
 	if (currentPage === 1) {
-		$('#firstPageId').addClass('datacite-hide');
-		$('#prevPageId').addClass('datacite-hide');
+		$('#datacite-firstPageId').addClass('datacite-hide');
+		$('#datacite-prevPageId').addClass('datacite-hide');
 		pageMinus2.addClass('datacite-hide');
 		pageMinus1.addClass('datacite-hide');
 	}
 
 	if (currentPage === totalPages) {
-		$('#lastPageId').addClass('datacite-hide');
-		$('#nextPageId').addClass('datacite-hide');
+		$('#datacite-lastPageId').addClass('datacite-hide');
+		$('#datacite-nextPageId').addClass('datacite-hide');
 		pagePlus2.addClass('datacite-hide');
 		pagePlus1.addClass('datacite-hide');
 	}
@@ -76,7 +76,7 @@ function changeDatacitePaginationButton(currentPage = 1) {
 	}
 }
 
-function bindCollapseButtonClick() {
+function bindDataciteCollapseButtonClick() {
 	$('td.first_column > a').click( function () {
 		let classList = $(this).attr('class').split(/\s+/);
 		let itemId = '';
@@ -103,21 +103,21 @@ function bindCollapseButtonClick() {
 	});
 }
 
-function closeAllChapterTables() {
+function closeDataciteAllChapterTables() {
 	$('a.hide_extras').each(function () {
 		$(this).click();
 	});
 }
 
 $(document).ready(function () {
-	paginationButtons = $('.datacite-nav-button');
-	selectItemsPerPage = $('#selItemsPerPage');
-	mainForm = $('#queueXmlForm');
-	grid = $('#datacitelistgrid');
-	itemsCount = $('#datacitelistgrid-table > tbody > tr').length / 2;
+	datacitePaginationButtons = $('.datacite-nav-button');
+	dataciteSelectItemsPerPage = $('#datacite-selItemsPerPage');
+	dataciteMainForm = $('#datacite-queueXmlForm');
+	dataciteGrid = $('#datacitelistgrid');
+	dataciteItemsCount = $('#datacitelistgrid-table > tbody > tr').length / 2;
 
-	bindCollapseButtonClick();
-	grid.pkpHandler(
+	bindDataciteCollapseButtonClick();
+	dataciteGrid.pkpHandler(
 		'$.pkp.controllers.grid.GridHandler',
 		{
 			bodySelector: '#datacitelistgrid-table',
@@ -148,24 +148,24 @@ $(document).ready(function () {
 			data: {
 				'csrfToken':$('input[name ="csrfToken"]').val(),
 				'isAjax':true,
-				'sel-search-type':$('#sel-search-type').val(),
-				'search-text':$('#search-text').val(),
-				'sel-search-status':$('#sel-search-status').val()
+				'sel-search-type':$('#datacite-sel-search-type').val(),
+				'search-text':$('#datacite-search-text').val(),
+				'sel-search-status':$('#datacite-sel-search-status').val()
 			},
 			success: function (data) {
 				$('#datacitelistgrid-table > tbody').html(data);
 				if( data !== '' ) {
-					itemsCount = $('#datacitelistgrid-table > tbody > tr').length / 2;
+					dataciteItemsCount = $('#datacitelistgrid-table > tbody > tr').length / 2;
 				}
 				else
 				{
-					itemsCount = 0;
+					dataciteItemsCount = 0;
 				}
-				$('#datacite-page-count-items').html( itemsCount );
-				closeAllChapterTables();
+				$('#datacite-page-count-items').html( dataciteItemsCount );
+				closeDataciteAllChapterTables();
 				changeDatacitePaginationButton();
-				changeDatacitePagination(1, parseInt( $('#selItemsPerPage').val() ) );
-				bindCollapseButtonClick();
+				changeDatacitePagination( 1, parseInt( $('#datacite-selItemsPerPage').val() ) );
+				bindDataciteCollapseButtonClick();
 				$('body').removeClass('waiting');
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
@@ -175,11 +175,11 @@ $(document).ready(function () {
 		});
 	});
 
-	paginationButtons.click(function () {
+	datacitePaginationButtons.click(function () {
 		let buttonValue = $(this).val();
-		let itemsPerPage = parseInt(selectItemsPerPage.val());
-		let currentPage = parseInt($('#pageId').val());
-		let totalPages = Math.ceil(itemsCount / itemsPerPage);
+		let itemsPerPage = parseInt(dataciteSelectItemsPerPage.val());
+		let currentPage = parseInt($('#datacite-pageId').val());
+		let totalPages = Math.ceil(dataciteItemsCount / itemsPerPage);
 
 		if (buttonValue === '<<') {
 			buttonValue = 1;
@@ -200,22 +200,22 @@ $(document).ready(function () {
 			buttonValue = totalPages
 		}
 
-		closeAllChapterTables();
+		closeDataciteAllChapterTables();
 		changeDatacitePagination(parseInt(buttonValue), itemsPerPage);
 		changeDatacitePaginationButton(parseInt(buttonValue));
 	});
 
-	selectItemsPerPage.change(function () {
+	dataciteSelectItemsPerPage.change(function () {
 
-		closeAllChapterTables();
-		let itemsPerPage = $('#selItemsPerPage').val();
+		closeDataciteAllChapterTables();
+		let itemsPerPage = $('#datacite-selItemsPerPage').val();
 		changeDatacitePaginationButton();
-		let currentPage = $('#pageId').val();
+		let currentPage = $('#datacite-pageId').val();
 		changeDatacitePagination(parseInt(currentPage), parseInt(itemsPerPage));
 
 	});
 
-	$('#search-text').keydown(function(event) {
+	$('#datacite-search-text').keydown(function(event) {
 		// noinspection JSUnresolvedVariable
 		if (event.keyCode === 13) {
 			event.preventDefault();

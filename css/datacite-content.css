@@ -49,18 +49,16 @@ input[type="checkbox"]:disabled
 
 .datacite-nav-button
 {
-	padding: 7px 16px;
+	padding: 0 0.5em 0 0.5em;
 	vertical-align: middle;
-	background-color: #eee;
-	background-image: linear-gradient(#eee, #ddd);
-	border: 1px solid #ccc;
+	background-color: #FFFFFF;
+	border: 1px solid #ddd;
 	border-radius: 2px;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1),inset 0 1px 1px rgba(255,255,255,0.6);
-	font-size: 12px;
+	box-shadow: 0 1px 0 #ddd;
+	font-size: .875rem;
 	font-weight: 700;
-	line-height: 16px;
-	color: rgba(0,0,0,0.84);
-	text-shadow: 0 2px 0 rgba(255,255,255,0.6);
+	line-height: 2rem;
+	color: #006798;
 	cursor: pointer;
 	text-decoration: none;
 	-webkit-user-select: none;
@@ -70,14 +68,34 @@ input[type="checkbox"]:disabled
 	-webkit-appearance: none;
 }
 
-#pageId
+.datacite-nav-button:hover,
+.datacite-nav-button:focus
 {
-	background-color: #009de5;
-	background-image: linear-gradient(#19b7ff, #006999);
+	color: #006798;
+	border-color: #006798;
+}
+
+
+#datacite-pageId
+{
 	color: #fff;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1),inset 0 1px 1px rgba(255,255,255,0.4);
-	text-shadow: 0 2px 0 rgba(0,0,0,0.2);
-	border-color: #007ab2;
+	background: #006798;
+	border-color: #006798;
+	box-shadow: 0 1px 0 #006798;
+}
+
+#datacite-pageId:hover,
+#datacite-pageId:focus
+{
+	background: #008acb;
+	color: #fff;
+	border-color: #006798;
+	box-shadow: 0 1px 0 #006798;
+}
+
+#datacite-filter-form
+{
+	border-bottom: 1px solid #eee;
 }
 
 body.waiting,

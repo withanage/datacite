@@ -1,6 +1,6 @@
 ##### OMPDatacite and DA|RA Plugin
 
-*Für OMP Version 3.1.2*
+*Entwicklungsversion für OMP Version 3.3.0*
 
 ###### Einleitung
 Dieses Plugin registriert DOIS für Mongraphen, Sammelbände und Kapitel für den DOI-Anbieter [Datacite.org](https://datacite.org).
