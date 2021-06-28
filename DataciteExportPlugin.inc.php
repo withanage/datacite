@@ -1070,8 +1070,7 @@ class DataciteExportPlugin extends ImportExportPlugin {
 		return Config::getVar( 'files', 'files_dir' ) . '/DATACITE_ERROR.log';
 	}
 
-	public function executeCLI(
-		$scriptName, &$args) : void {
+	public function executeCLI(		$scriptName, &$args) : void {
 		fatalError('Not implemented.');
 	}
 
@@ -1210,22 +1209,4 @@ class DataciteExportPlugin extends ImportExportPlugin {
 
 }
 
-	function executeCLI($scriptName, &$args) {
-		// TODO: Implement executeCLI() method.
-	}
 
-	function usage($scriptName) {
-		// TODO: Implement usage() method.
-	}
-
-	function getName() {
-		// TODO: Implement getName() method.
-	}
-
-	function getDisplayName() {
-		// TODO: Implement getDisplayName() method.
-	}
-
-	function getDescription() {
-		// TODO: Implement getDescription() method.
-	}
